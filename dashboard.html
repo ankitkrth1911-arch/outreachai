@@ -1,565 +1,1337 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>OutreachAI — Dashboard</title>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-:root{
-  --bg:#0A0F1E;--bg2:#0F1629;--bg3:#151d35;
-  --accent:#6366F1;--accent2:#818CF8;--ag:rgba(99,102,241,0.15);
-  --text:#E8EAF0;--muted:#7C85A2;
-  --border:rgba(255,255,255,0.08);--ba:rgba(99,102,241,0.3);
-  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
-  --sans:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button{cursor:pointer;font-family:var(--sans)}
-input,textarea,select{font-family:var(--sans)}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OutreachAI — Dashboard</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* AUTH */
-.auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at center,rgba(99,102,241,0.1) 0%,var(--bg) 70%)}
-.auth-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:100%;max-width:400px}
-.auth-logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:600;margin-bottom:28px;justify-content:center}
-.auth-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-.auth-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.auth-tab{flex:1;padding:9px;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--muted);transition:all .2s}
-.auth-tab.active{background:var(--accent);color:#fff}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-family:var(--mono)}
-.form-group input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s}
-.form-group input:focus{border-color:var(--accent)}
-.form-group input::placeholder{color:var(--muted)}
-.btn-full{width:100%;background:var(--accent);color:#fff;font-size:14px;font-weight:500;padding:12px;border-radius:8px;border:none;transition:all .2s;margin-top:4px}
-.btn-full:hover{background:var(--accent2);transform:translateY(-1px)}
-.btn-full:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.auth-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#fca5a5;margin-top:10px;display:none}
+    :root {
+      --bg: #0A0F1E;
+      --bg2: #0F1629;
+      --bg3: #151d35;
+      --accent: #6366F1;
+      --accent2: #818CF8;
+      --ag: rgba(99, 102, 241, 0.15);
+      --text: #E8EAF0;
+      --muted: #7C85A2;
+      --border: rgba(255, 255, 255, 0.08);
+      --ba: rgba(99, 102, 241, 0.3);
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --sans: 'Inter', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
 
-/* LAYOUT */
-.app{display:none;min-height:100vh}
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;display:flex;flex-direction:column;z-index:10}
-.sidebar-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:8px}
-.sidebar-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:var(--muted);transition:all .15s;cursor:pointer;border-left:3px solid transparent}
-.nav-item:hover{background:rgba(255,255,255,.03);color:var(--text)}
-.nav-item.active{background:var(--ag);color:var(--accent2);border-left-color:var(--accent)}
-.nav-item .icon{font-size:16px;width:20px;text-align:center}
-.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
-.user-info{font-size:12px;color:var(--muted);margin-bottom:10px}
-.user-info strong{color:var(--text);font-size:13px;display:block}
-.plan-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;background:var(--ag);border:1px solid var(--ba);color:var(--accent2);font-family:var(--mono);margin-top:3px}
-.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;padding:7px;border-radius:6px;transition:all .2s}
-.logout-btn:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
-.main{margin-left:220px;padding:28px;min-height:100vh}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* PAGES */
-.page{display:none}.page.active{display:block}
-.page-title{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:4px}
-.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased
+    }
 
-/* STATS GRID */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
-.stat-label{font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--mono)}
-.stat-value{font-size:28px;font-weight:600;letter-spacing:-1px;color:var(--text)}
-.stat-value.green{color:var(--green)}
-.stat-value.accent{color:var(--accent2)}
-.stat-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    a {
+      color: inherit;
+      text-decoration: none
+    }
 
-/* CARDS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
-.card h3{font-size:14px;font-weight:500;margin-bottom:14px}
+    button {
+      cursor: pointer;
+      font-family: var(--sans)
+    }
 
-/* TABLE */
-.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap}
-.search-input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:220px}
-.search-input::placeholder{color:var(--muted)}
-.search-input:focus{border-color:var(--accent)}
-table{width:100%;border-collapse:collapse}
-th{font-size:11px;font-weight:500;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--bg3);font-family:var(--mono);white-space:nowrap}
-td{font-size:13px;color:var(--text);padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.02)}
-.status-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500;white-space:nowrap;display:inline-block}
-.s-new{background:rgba(99,102,241,.15);color:#a5b4fc}
-.s-sent{background:rgba(245,158,11,.1);color:#fcd34d}
-.s-interested{background:rgba(34,197,94,.1);color:#86efac}
-.s-not{background:rgba(239,68,68,.1);color:#fca5a5}
-.s-meeting{background:rgba(168,85,247,.1);color:#d8b4fe}
-.s-replied{background:rgba(20,184,166,.1);color:#99f6e4}
+    input,
+    textarea,
+    select {
+      font-family: var(--sans)
+    }
 
-/* BUTTONS */
-.btn{font-size:12px;padding:7px 14px;border-radius:8px;border:none;font-weight:500;transition:all .15s}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
-.btn-danger{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}.btn-danger:hover{background:rgba(239,68,68,.25)}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
-.btn-sm{font-size:11px;padding:5px 10px}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    /* AUTH */
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(ellipse at center, rgba(99, 102, 241, 0.1) 0%, var(--bg) 70%)
+    }
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto}
-.modal h3{font-size:16px;font-weight:500;margin-bottom:16px}
-.modal-close{float:right;background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;margin-top:-4px}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+    .auth-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px
+    }
 
-/* PRICING CARDS */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.price-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;transition:border-color .2s}
-.price-card.featured{border-color:var(--accent)}
-.price-card:hover{border-color:rgba(255,255,255,.15)}
-.pop-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;padding:2px 12px;border-radius:20px;white-space:nowrap}
-.plan-name{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:8px}
-.plan-price{font-size:30px;font-weight:600;letter-spacing:-1px;margin-bottom:4px}
-.plan-price sup{font-size:14px;font-weight:400;vertical-align:super}
-.plan-orig{font-size:11px;color:var(--muted);text-decoration:line-through;margin-bottom:2px}
-.plan-cycle{font-size:11px;color:var(--muted);margin-bottom:16px}
-.plan-features{list-style:none;margin-bottom:16px}
-.plan-features li{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px}
-.plan-features li::before{content:'✓';color:var(--accent2);font-size:11px;flex-shrink:0}
-.plan-btn{width:100%;padding:9px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--text);transition:all .2s}
-.plan-btn:hover{background:rgba(255,255,255,.06)}
-.plan-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.plan-btn.primary:hover{background:var(--accent2)}
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      justify-content: center
+    }
 
-/* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);opacity:0;transition:all .3s;z-index:999;pointer-events:none;max-width:320px;transform:translateY(10px)}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast.success{border-color:rgba(34,197,94,.4);color:#86efac}
-.toast.error{border-color:rgba(239,68,68,.4);color:#fca5a5}
+    .auth-logo .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent)
+    }
 
-/* EMPTY STATE */
-.empty{text-align:center;padding:48px 20px;color:var(--muted)}
-.empty .icon{font-size:36px;margin-bottom:10px}
-.empty p{font-size:14px;margin-bottom:14px}
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden
+    }
 
-/* PROGRESS BAR */
-.progress-wrap{margin-top:6px}
-.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
-.progress-label{font-size:11px;color:var(--muted);margin-top:4px;display:flex;justify-content:space-between}
+    .auth-tab {
+      flex: 1;
+      padding: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      transition: all .2s
+    }
 
-/* FORM */
-.form-row{margin-bottom:12px}
-.form-row label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-family:var(--mono)}
-.form-row input,.form-row textarea,.form-row select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;resize:none}
-.form-row input:focus,.form-row textarea:focus,.form-row select:focus{border-color:var(--accent)}
-.form-row input::placeholder,.form-row textarea::placeholder{color:var(--muted)}
-.form-row select option{background:var(--bg2)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .auth-tab.active {
+      background: var(--accent);
+      color: #fff
+    }
 
-/* LOADING */
-.loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
+    .form-group {
+      margin-bottom: 14px
+    }
 
-/* RESPONSIVE */
-@media(max-width:768px){
-  .sidebar{width:60px}
-  .sidebar-logo span,.nav-item span,.user-info,.logout-btn,.sidebar-logo .wordmark{display:none}
-  .main{margin-left:60px;padding:16px}
-  .grid-2{grid-template-columns:1fr}
-}
-</style>
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-family: var(--mono)
+    }
+
+    .form-group input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s
+    }
+
+    .form-group input:focus {
+      border-color: var(--accent)
+    }
+
+    .form-group input::placeholder {
+      color: var(--muted)
+    }
+
+    .btn-full {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      transition: all .2s;
+      margin-top: 4px
+    }
+
+    .btn-full:hover {
+      background: var(--accent2);
+      transform: translateY(-1px)
+    }
+
+    .btn-full:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .auth-error {
+      background: rgba(239, 68, 68, .1);
+      border: 1px solid rgba(239, 68, 68, .3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #fca5a5;
+      margin-top: 10px;
+      display: none
+    }
+
+    /* LAYOUT */
+    .app {
+      display: none;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 220px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 10
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px
+    }
+
+    .sidebar-logo .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent)
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      transition: all .15s;
+      cursor: pointer;
+      border-left: 3px solid transparent
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, .03);
+      color: var(--text)
+    }
+
+    .nav-item.active {
+      background: var(--ag);
+      color: var(--accent2);
+      border-left-color: var(--accent)
+    }
+
+    .nav-item .icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid var(--border)
+    }
+
+    .user-info {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px
+    }
+
+    .user-info strong {
+      color: var(--text);
+      font-size: 13px;
+      display: block
+    }
+
+    .plan-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: var(--ag);
+      border: 1px solid var(--ba);
+      color: var(--accent2);
+      font-family: var(--mono);
+      margin-top: 3px
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 7px;
+      border-radius: 6px;
+      transition: all .2s
+    }
+
+    .logout-btn:hover {
+      border-color: rgba(255, 255, 255, .2);
+      color: var(--text)
+    }
+
+    .main {
+      margin-left: 220px;
+      padding: 28px;
+      min-height: 100vh
+    }
+
+    /* PAGES */
+    .page {
+      display: none
+    }
+
+    .page.active {
+      display: block
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -.4px;
+      margin-bottom: 4px
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: var(--mono)
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      color: var(--text)
+    }
+
+    .stat-value.green {
+      color: var(--green)
+    }
+
+    .stat-value.accent {
+      color: var(--accent2)
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px
+    }
+
+    .card h3 {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 14px
+    }
+
+    /* TABLE */
+    .table-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .search-input {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      width: 220px
+    }
+
+    .search-input::placeholder {
+      color: var(--muted)
+    }
+
+    .search-input:focus {
+      border-color: var(--accent)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+      font-family: var(--mono);
+      white-space: nowrap
+    }
+
+    td {
+      font-size: 13px;
+      color: var(--text);
+      padding: 11px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .04)
+    }
+
+    tr:last-child td {
+      border-bottom: none
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, .02)
+    }
+
+    .status-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: inline-block
+    }
+
+    .s-new {
+      background: rgba(99, 102, 241, .15);
+      color: #a5b4fc
+    }
+
+    .s-sent {
+      background: rgba(245, 158, 11, .1);
+      color: #fcd34d
+    }
+
+    .s-interested {
+      background: rgba(34, 197, 94, .1);
+      color: #86efac
+    }
+
+    .s-not {
+      background: rgba(239, 68, 68, .1);
+      color: #fca5a5
+    }
+
+    .s-meeting {
+      background: rgba(168, 85, 247, .1);
+      color: #d8b4fe
+    }
+
+    .s-replied {
+      background: rgba(20, 184, 166, .1);
+      color: #99f6e4
+    }
+
+    /* BUTTONS */
+    .btn {
+      font-size: 12px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 500;
+      transition: all .15s
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2)
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, .15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, .3)
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, .25)
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border)
+    }
+
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, .2)
+    }
+
+    .btn-sm {
+      font-size: 11px;
+      padding: 5px 10px
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px
+    }
+
+    .modal-overlay.open {
+      display: flex
+    }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 460px;
+      max-height: 90vh;
+      overflow-y: auto
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px
+    }
+
+    .modal-close {
+      float: right;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: -4px
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 16px
+    }
+
+    /* PRICING CARDS */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px
+    }
+
+    .price-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      transition: border-color .2s
+    }
+
+    .price-card.featured {
+      border-color: var(--accent)
+    }
+
+    .price-card:hover {
+      border-color: rgba(255, 255, 255, .15)
+    }
+
+    .pop-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 12px;
+      border-radius: 20px;
+      white-space: nowrap
+    }
+
+    .plan-name {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 8px
+    }
+
+    .plan-price {
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 4px
+    }
+
+    .plan-price sup {
+      font-size: 14px;
+      font-weight: 400;
+      vertical-align: super
+    }
+
+    .plan-orig {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: line-through;
+      margin-bottom: 2px
+    }
+
+    .plan-cycle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 16px
+    }
+
+    .plan-features li {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--accent2);
+      font-size: 11px;
+      flex-shrink: 0
+    }
+
+    .plan-btn {
+      width: 100%;
+      padding: 9px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      transition: all .2s
+    }
+
+    .plan-btn:hover {
+      background: rgba(255, 255, 255, .06)
+    }
+
+    .plan-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff
+    }
+
+    .plan-btn.primary:hover {
+      background: var(--accent2)
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+      pointer-events: none;
+      max-width: 320px;
+      transform: translateY(10px)
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .toast.success {
+      border-color: rgba(34, 197, 94, .4);
+      color: #86efac
+    }
+
+    .toast.error {
+      border-color: rgba(239, 68, 68, .4);
+      color: #fca5a5
+    }
+
+    /* EMPTY STATE */
+    .empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted)
+    }
+
+    .empty .icon {
+      font-size: 36px;
+      margin-bottom: 10px
+    }
+
+    .empty p {
+      font-size: 14px;
+      margin-bottom: 14px
+    }
+
+    /* PROGRESS BAR */
+    .progress-wrap {
+      margin-top: 6px
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width .3s
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between
+    }
+
+    /* FORM */
+    .form-row {
+      margin-bottom: 12px
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-family: var(--mono)
+    }
+
+    .form-row input,
+    .form-row textarea,
+    .form-row select {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .2s;
+      resize: none
+    }
+
+    .form-row input:focus,
+    .form-row textarea:focus,
+    .form-row select:focus {
+      border-color: var(--accent)
+    }
+
+    .form-row input::placeholder,
+    .form-row textarea::placeholder {
+      color: var(--muted)
+    }
+
+    .form-row select option {
+      background: var(--bg2)
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    /* LOADING */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, .3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px) {
+      .sidebar {
+        width: 60px
+      }
+
+      .sidebar-logo span,
+      .nav-item span,
+      .user-info,
+      .logout-btn,
+      .sidebar-logo .wordmark {
+        display: none
+      }
+
+      .main {
+        margin-left: 60px;
+        padding: 16px
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- AUTH PAGE -->
-<div class="auth-page" id="authPage">
-  <div class="auth-box">
-    <div class="auth-logo"><div class="dot"></div>OutreachAI</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Log in</button>
-      <button class="auth-tab" onclick="switchTab('signup')">Sign up</button>
-    </div>
-
-    <!-- LOGIN -->
-    <div id="loginForm">
-      <div class="form-group"><label>email</label><input type="email" id="loginEmail" placeholder="you@company.com"/></div>
-      <div class="form-group"><label>password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
-      <button class="btn-full" onclick="login()"><span id="loginBtnText">Log in</span></button>
-      <div class="auth-error" id="loginError"></div>
-    </div>
-
-    <!-- SIGNUP -->
-    <div id="signupForm" style="display:none">
-      <div class="form-group"><label>full name</label><input type="text" id="signupName" placeholder="Ankit Kumar"/></div>
-      <div class="form-group"><label>email</label><input type="email" id="signupEmail" placeholder="you@company.com"/></div>
-      <div class="form-group"><label>password (min 6 chars)</label><input type="password" id="signupPass" placeholder="••••••••"/></div>
-      <button class="btn-full" onclick="signup()"><span id="signupBtnText">Create account</span></button>
-      <div class="auth-error" id="signupError"></div>
-    </div>
-  </div>
-</div>
-
-<!-- APP -->
-<div class="app" id="appPage">
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-logo"><div class="dot"></div><span class="wordmark">OutreachAI</span></div>
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span><span>Dashboard</span></div>
-    <div class="nav-item" onclick="showPage('leads')"><span class="icon">👥</span><span>Leads</span></div>
-    <div class="nav-item" onclick="showPage('emails')"><span class="icon">📧</span><span>Emails</span></div>
-    <div class="nav-item" onclick="showPage('pricing')"><span class="icon">💳</span><span>Upgrade</span></div>
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <strong id="sidebarName">User</strong>
-        <span id="sidebarEmail" style="font-size:11px"></span>
-        <span class="plan-badge" id="sidebarPlan">free</span>
+  <!-- AUTH PAGE -->
+  <div class="auth-page" id="authPage">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="dot"></div>OutreachAI
       </div>
-      <button class="logout-btn" onclick="logout()">Log out</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Log in</button>
+        <button class="auth-tab" onclick="switchTab('signup')">Sign up</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginForm">
+        <div class="form-group"><label>email</label><input type="email" id="loginEmail" placeholder="you@company.com" />
+        </div>
+        <div class="form-group"><label>password</label><input type="password" id="loginPass" placeholder="••••••••" />
+        </div>
+        <button class="btn-full" onclick="login()"><span id="loginBtnText">Log in</span></button>
+        <div class="auth-error" id="loginError"></div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="signupForm" style="display:none">
+        <div class="form-group"><label>full name</label><input type="text" id="signupName" placeholder="Ankit Kumar" />
+        </div>
+        <div class="form-group"><label>email</label><input type="email" id="signupEmail"
+            placeholder="you@company.com" /></div>
+        <div class="form-group"><label>password (min 6 chars)</label><input type="password" id="signupPass"
+            placeholder="••••••••" /></div>
+        <button class="btn-full" onclick="signup()"><span id="signupBtnText">Create account</span></button>
+        <div class="auth-error" id="signupError"></div>
+      </div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-
-    <!-- DASHBOARD PAGE -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-title">Dashboard</div>
-      <div class="page-sub">Welcome back, <span id="dashName">Ankit</span> 👋</div>
-      <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="s-total">—</div></div>
-        <div class="stat-card"><div class="stat-label">Emails Sent</div><div class="stat-value accent" id="s-sent">—</div></div>
-        <div class="stat-card"><div class="stat-label">Interested</div><div class="stat-value green" id="s-interested">—</div></div>
-        <div class="stat-card"><div class="stat-label">Meetings Booked</div><div class="stat-value green" id="s-meetings">—</div></div>
-        <div class="stat-card"><div class="stat-label">Conversion Rate</div><div class="stat-value accent" id="s-conv">—</div><div class="stat-sub">replies → interested</div></div>
-        <div class="stat-card"><div class="stat-label">Avg Lead Score</div><div class="stat-value" id="s-score">—</div><div class="stat-sub">out of 100</div></div>
+  <!-- APP -->
+  <div class="app" id="appPage">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="dot"></div><span class="wordmark">OutreachAI</span>
       </div>
-
-      <div class="card">
-        <h3>Lead usage</h3>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-          <div class="progress-label"><span id="progressText">0 of 10 leads used</span><span id="planText">Free plan</span></div>
-        </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="showPage('leads')">Add leads →</button>
-          <button class="btn btn-ghost" onclick="showPage('pricing')">Upgrade plan</button>
-        </div>
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span><span>Dashboard</span>
       </div>
-
-      <div class="card">
-        <h3>Recent leads</h3>
-        <div id="recentLeadsTable"></div>
+      <div class="nav-item" onclick="showPage('leads')"><span class="icon">👥</span><span>Leads</span></div>
+      <div class="nav-item" onclick="showPage('emails')"><span class="icon">📧</span><span>Emails</span></div>
+      <div class="nav-item" onclick="showPage('pricing')"><span class="icon">💳</span><span>Upgrade</span></div>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <strong id="sidebarName">User</strong>
+          <span id="sidebarEmail" style="font-size:11px"></span>
+          <span class="plan-badge" id="sidebarPlan">free</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Log out</button>
       </div>
     </div>
 
-    <!-- LEADS PAGE -->
-    <div class="page" id="page-leads">
-      <div class="page-title">Leads</div>
-      <div class="page-sub">Manage your lead pipeline</div>
-      <div class="table-wrap">
-        <div class="table-header">
-          <input class="search-input" id="leadSearch" placeholder="Search company or email..." oninput="filterLeads()"/>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <select id="statusFilter" onchange="filterLeads()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-size:12px;outline:none">
-              <option value="all">All status</option>
-              <option value="New">New</option>
-              <option value="Sent">Sent</option>
-              <option value="Replied">Replied</option>
-              <option value="Interested">Interested</option>
-              <option value="Meeting Sent">Meeting Sent</option>
-            </select>
-            <button class="btn btn-primary" onclick="openAddLead()">+ Add lead</button>
-            <button class="btn btn-ghost" onclick="openBulkImport()">Bulk import</button>
-            <button class="btn btn-ghost" onclick="triggerEmails()">▶ Send emails</button>
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Welcome back, <span id="dashName">Ankit</span> 👋</div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-label">Total Leads</div>
+            <div class="stat-value" id="s-total">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Emails Sent</div>
+            <div class="stat-value accent" id="s-sent">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Interested</div>
+            <div class="stat-value green" id="s-interested">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Meetings Booked</div>
+            <div class="stat-value green" id="s-meetings">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Conversion Rate</div>
+            <div class="stat-value accent" id="s-conv">—</div>
+            <div class="stat-sub">replies → interested</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Lead Score</div>
+            <div class="stat-value" id="s-score">—</div>
+            <div class="stat-sub">out of 100</div>
           </div>
         </div>
-        <div id="leadsTableWrap" style="overflow-x:auto">
-          <div class="empty"><div class="icon">👥</div><p>No leads yet. Add your first lead to get started.</p><button class="btn btn-primary" onclick="openAddLead()">+ Add lead</button></div>
+
+        <div class="card">
+          <h3>Lead usage</h3>
+          <div class="progress-wrap">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div class="progress-label"><span id="progressText">0 of 10 leads used</span><span id="planText">Free
+                plan</span></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="showPage('leads')">Add leads →</button>
+            <button class="btn btn-ghost" onclick="showPage('pricing')">Upgrade plan</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Recent leads</h3>
+          <div id="recentLeadsTable"></div>
         </div>
       </div>
-    </div>
 
-    <!-- EMAILS PAGE -->
-    <div class="page" id="page-emails">
-      <div class="page-title">Email Campaigns</div>
-      <div class="page-sub">Generate and send AI-powered cold emails</div>
-      <div class="card">
-        <h3>Generate AI email</h3>
-        <div class="grid-2">
-          <div class="form-row"><label>company name</label><input type="text" id="genCompany" placeholder="Nike"/></div>
-          <div class="form-row"><label>website (optional)</label><input type="text" id="genWebsite" placeholder="https://nike.com"/></div>
+      <!-- LEADS PAGE -->
+      <div class="page" id="page-leads">
+        <div class="page-title">Leads</div>
+        <div class="page-sub">Manage your lead pipeline</div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <input class="search-input" id="leadSearch" placeholder="Search company or email..."
+              oninput="filterLeads()" />
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="statusFilter" onchange="filterLeads()"
+                style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-size:12px;outline:none">
+                <option value="all">All status</option>
+                <option value="New">New</option>
+                <option value="Sent">Sent</option>
+                <option value="Replied">Replied</option>
+                <option value="Interested">Interested</option>
+                <option value="Meeting Sent">Meeting Sent</option>
+              </select>
+              <button class="btn btn-primary" onclick="openAddLead()">+ Add lead</button>
+              <button class="btn btn-ghost" onclick="openBulkImport()">Bulk import</button>
+              <button class="btn btn-ghost" onclick="triggerEmails()">▶ Send emails</button>
+            </div>
+          </div>
+          <div id="leadsTableWrap" style="overflow-x:auto">
+            <div class="empty">
+              <div class="icon">👥</div>
+              <p>No leads yet. Add your first lead to get started.</p><button class="btn btn-primary"
+                onclick="openAddLead()">+ Add lead</button>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary" onclick="generateEmail()"><span id="genBtnText">Generate email with AI</span></button>
-        <div id="generatedEmail" style="margin-top:14px;display:none">
-          <div class="form-row"><label>subject</label><input type="text" id="genSubject"/></div>
-          <div class="form-row"><label>email body</label><textarea id="genBody" rows="6"></textarea></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">⚡ Generated by Groq AI — review before sending</div>
+      </div>
+
+      <!-- EMAILS PAGE -->
+      <div class="page" id="page-emails">
+        <div class="page-title">Email Campaigns</div>
+        <div class="page-sub">Generate and send AI-powered cold emails</div>
+        <div class="card">
+          <h3>Generate AI email</h3>
+          <div class="grid-2">
+            <div class="form-row"><label>company name</label><input type="text" id="genCompany" placeholder="Nike" />
+            </div>
+            <div class="form-row"><label>website (optional)</label><input type="text" id="genWebsite"
+                placeholder="https://nike.com" /></div>
+          </div>
+          <button class="btn btn-primary" onclick="generateEmail()"><span id="genBtnText">Generate email with
+              AI</span></button>
+          <div id="generatedEmail" style="margin-top:14px;display:none">
+            <div class="form-row"><label>subject</label><input type="text" id="genSubject" /></div>
+            <div class="form-row"><label>email body</label><textarea id="genBody" rows="6"></textarea></div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px">⚡ Generated by Groq AI — review before
+              sending</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Campaign status</h3>
+          <div id="campaignStats" style="color:var(--muted);font-size:13px">Click "Send emails" in the Leads tab to
+            trigger your n8n workflow for all New leads.</div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="triggerEmails()">▶ Trigger email campaign</button>
+            <button class="btn btn-ghost" onclick="loadLeads()">Refresh leads</button>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <h3>Campaign status</h3>
-        <div id="campaignStats" style="color:var(--muted);font-size:13px">Click "Send emails" in the Leads tab to trigger your n8n workflow for all New leads.</div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="triggerEmails()">▶ Trigger email campaign</button>
-          <button class="btn btn-ghost" onclick="loadLeads()">Refresh leads</button>
+      <!-- PRICING PAGE -->
+      <div class="page" id="page-pricing">
+        <div class="page-title">Upgrade your plan</div>
+        <div class="page-sub">Launch pricing — 50% off for early adopters</div>
+        <div class="pricing-grid">
+          <div class="price-card">
+            <div class="plan-name">STARTER</div>
+            <div class="plan-orig">₹999/mo</div>
+            <div class="plan-price"><sup>₹</sup>499</div>
+            <div class="plan-cycle">per month</div>
+            <ul class="plan-features">
+              <li>50 leads per month</li>
+              <li>AI email generation</li>
+              <li>3-touch follow-ups</li>
+              <li>Gmail sending</li>
+              <li>Analytics dashboard</li>
+            </ul>
+            <button class="plan-btn" onclick="startPayment('starter',499,'Starter')">Get Starter →</button>
+          </div>
+          <div class="price-card featured">
+            <div class="pop-badge">Most popular</div>
+            <div class="plan-name">PRO</div>
+            <div class="plan-orig">₹2,499/mo</div>
+            <div class="plan-price"><sup>₹</sup>1,249</div>
+            <div class="plan-cycle">per month</div>
+            <ul class="plan-features">
+              <li>200 leads per month</li>
+              <li>Everything in Starter</li>
+              <li>Lead scoring (AI)</li>
+              <li>CRM integration</li>
+              <li>Reply classification</li>
+              <li>Meeting booking</li>
+            </ul>
+            <button class="plan-btn primary" onclick="startPayment('pro',1249,'Pro')">Get Pro →</button>
+          </div>
+          <div class="price-card">
+            <div class="plan-name">AGENCY</div>
+            <div class="plan-orig">₹5,999/mo</div>
+            <div class="plan-price"><sup>₹</sup>2,999</div>
+            <div class="plan-cycle">per month</div>
+            <ul class="plan-features">
+              <li>Unlimited leads</li>
+              <li>Everything in Pro</li>
+              <li>Multi-user access</li>
+              <li>Shared lead inbox</li>
+              <li>Priority support</li>
+              <li>Custom onboarding</li>
+            </ul>
+            <button class="plan-btn" onclick="startPayment('agency',2999,'Agency')">Get Agency →</button>
+          </div>
         </div>
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">No contracts. Cancel anytime.
+          Prices in INR + GST.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD LEAD MODAL -->
+  <div class="modal-overlay" id="addLeadModal">
+    <div class="modal">
+      <h3>Add new lead <button class="modal-close" onclick="closeModal('addLeadModal')">×</button></h3>
+      <div class="form-row"><label>company name *</label><input type="text" id="mlCompany" placeholder="Nike" /></div>
+      <div class="form-row"><label>email *</label><input type="email" id="mlEmail" placeholder="founder@nike.com" />
+      </div>
+      <div class="form-row"><label>website</label><input type="text" id="mlWebsite" placeholder="https://nike.com" />
+      </div>
+      <div class="form-row"><label>sender email</label><input type="email" id="mlSender"
+          placeholder="ankitkrth1911@gmail.com" /></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('addLeadModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addLead()"><span id="addLeadBtnText">Add lead</span></button>
       </div>
     </div>
+  </div>
 
-    <!-- PRICING PAGE -->
-    <div class="page" id="page-pricing">
-      <div class="page-title">Upgrade your plan</div>
-      <div class="page-sub">Launch pricing — 50% off for early adopters</div>
-      <div class="pricing-grid">
-        <div class="price-card">
-          <div class="plan-name">STARTER</div>
-          <div class="plan-orig">₹999/mo</div>
-          <div class="plan-price"><sup>₹</sup>499</div>
-          <div class="plan-cycle">per month</div>
-          <ul class="plan-features">
-            <li>50 leads per month</li>
-            <li>AI email generation</li>
-            <li>3-touch follow-ups</li>
-            <li>Gmail sending</li>
-            <li>Analytics dashboard</li>
-          </ul>
-          <button class="plan-btn" onclick="startPayment('starter',499,'Starter')">Get Starter →</button>
-        </div>
-        <div class="price-card featured">
-          <div class="pop-badge">Most popular</div>
-          <div class="plan-name">PRO</div>
-          <div class="plan-orig">₹2,499/mo</div>
-          <div class="plan-price"><sup>₹</sup>1,249</div>
-          <div class="plan-cycle">per month</div>
-          <ul class="plan-features">
-            <li>200 leads per month</li>
-            <li>Everything in Starter</li>
-            <li>Lead scoring (AI)</li>
-            <li>CRM integration</li>
-            <li>Reply classification</li>
-            <li>Meeting booking</li>
-          </ul>
-          <button class="plan-btn primary" onclick="startPayment('pro',1249,'Pro')">Get Pro →</button>
-        </div>
-        <div class="price-card">
-          <div class="plan-name">AGENCY</div>
-          <div class="plan-orig">₹5,999/mo</div>
-          <div class="plan-price"><sup>₹</sup>2,999</div>
-          <div class="plan-cycle">per month</div>
-          <ul class="plan-features">
-            <li>Unlimited leads</li>
-            <li>Everything in Pro</li>
-            <li>Multi-user access</li>
-            <li>Shared lead inbox</li>
-            <li>Priority support</li>
-            <li>Custom onboarding</li>
-          </ul>
-          <button class="plan-btn" onclick="startPayment('agency',2999,'Agency')">Get Agency →</button>
-        </div>
+  <!-- BULK IMPORT MODAL -->
+  <div class="modal-overlay" id="bulkModal">
+    <div class="modal">
+      <h3>Bulk import leads <button class="modal-close" onclick="closeModal('bulkModal')">×</button></h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Paste CSV data — one lead per line. Format:
+        Company, Email, Website</p>
+      <div class="form-row"><label>csv data</label><textarea id="bulkData" rows="8"
+          placeholder="Razorpay, founder@razorpay.com, razorpay.com&#10;Groww, ceo@groww.in, groww.in&#10;Meesho, ops@meesho.com, meesho.com"></textarea>
       </div>
-      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px">No contracts. Cancel anytime. Prices in INR + GST.</p>
-    </div>
-
-  </div>
-</div>
-
-<!-- ADD LEAD MODAL -->
-<div class="modal-overlay" id="addLeadModal">
-  <div class="modal">
-    <h3>Add new lead <button class="modal-close" onclick="closeModal('addLeadModal')">×</button></h3>
-    <div class="form-row"><label>company name *</label><input type="text" id="mlCompany" placeholder="Nike"/></div>
-    <div class="form-row"><label>email *</label><input type="email" id="mlEmail" placeholder="founder@nike.com"/></div>
-    <div class="form-row"><label>website</label><input type="text" id="mlWebsite" placeholder="https://nike.com"/></div>
-    <div class="form-row"><label>sender email</label><input type="email" id="mlSender" placeholder="ankitkrth1911@gmail.com"/></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('addLeadModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="addLead()"><span id="addLeadBtnText">Add lead</span></button>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('bulkModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="bulkImport()">Import leads</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- BULK IMPORT MODAL -->
-<div class="modal-overlay" id="bulkModal">
-  <div class="modal">
-    <h3>Bulk import leads <button class="modal-close" onclick="closeModal('bulkModal')">×</button></h3>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Paste CSV data — one lead per line. Format: Company, Email, Website</p>
-    <div class="form-row"><label>csv data</label><textarea id="bulkData" rows="8" placeholder="Razorpay, founder@razorpay.com, razorpay.com&#10;Groww, ceo@groww.in, groww.in&#10;Meesho, ops@meesho.com, meesho.com"></textarea></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('bulkModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="bulkImport()">Import leads</button>
+  <!-- LEAD DETAIL MODAL -->
+  <div class="modal-overlay" id="leadDetailModal">
+    <div class="modal">
+      <h3 id="ldTitle">Lead details <button class="modal-close" onclick="closeModal('leadDetailModal')">×</button></h3>
+      <div id="ldContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-danger btn-sm" id="ldDeleteBtn">Delete lead</button>
+        <button class="btn btn-ghost" onclick="closeModal('leadDetailModal')">Close</button>
+        <button class="btn btn-primary btn-sm" id="ldEmailBtn">Generate email</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- LEAD DETAIL MODAL -->
-<div class="modal-overlay" id="leadDetailModal">
-  <div class="modal">
-    <h3 id="ldTitle">Lead details <button class="modal-close" onclick="closeModal('leadDetailModal')">×</button></h3>
-    <div id="ldContent"></div>
-    <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="ldDeleteBtn">Delete lead</button>
-      <button class="btn btn-ghost" onclick="closeModal('leadDetailModal')">Close</button>
-      <button class="btn btn-primary btn-sm" id="ldEmailBtn">Generate email</button>
-    </div>
-  </div>
-</div>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
+  <script>
+    // CONFIG
+    const API = 'https://outreachai-backend-gi0m.onrender.com';
+    const RAZORPAY_KEY = 'https://razorpay.me/@ankitkumar1270'; // ← replace this
 
-<script>
-// CONFIG
-const API = 'http://localhost:5000/api';
-const RAZORPAY_KEY = 'rzp_test_REPLACE_WITH_YOUR_KEY'; // ← replace this
+    let token = localStorage.getItem('oai_token');
+    let currentUser = JSON.parse(localStorage.getItem('oai_user') || 'null');
+    let allLeads = [];
 
-let token = localStorage.getItem('oai_token');
-let currentUser = JSON.parse(localStorage.getItem('oai_user') || 'null');
-let allLeads = [];
+    // ─── INIT ─────────────────────────────────────────────────
+    window.onload = () => {
+      if (token && currentUser) {
+        showApp();
+        loadDashboard();
+      } else {
+        document.getElementById('authPage').style.display = 'flex';
+      }
+    };
 
-// ─── INIT ─────────────────────────────────────────────────
-window.onload = () => {
-  if (token && currentUser) {
-    showApp();
-    loadDashboard();
-  } else {
-    document.getElementById('authPage').style.display = 'flex';
-  }
-};
-
-function showApp() {
-  document.getElementById('authPage').style.display = 'none';
-  document.getElementById('appPage').style.display = 'flex';
-  if (currentUser) {
-    document.getElementById('sidebarName').textContent = currentUser.name || 'User';
-    document.getElementById('sidebarEmail').textContent = currentUser.email || '';
-    document.getElementById('sidebarPlan').textContent = (currentUser.plan || 'free').toUpperCase();
-    document.getElementById('dashName').textContent = (currentUser.name || 'Ankit').split(' ')[0];
-  }
-}
-
-// ─── AUTH ─────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1)));
-  document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
-  document.getElementById('signupForm').style.display = tab==='signup' ? 'block' : 'none';
-}
-
-async function login() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPass').value;
-  if (!email || !password) return showError('loginError', 'Please enter email and password.');
-  setLoading('loginBtnText', true);
-  try {
-    const res = await apiFetch('/auth/login', 'POST', { email, password }, false);
-    token = res.token;
-    currentUser = res.user;
-    localStorage.setItem('oai_token', token);
-    localStorage.setItem('oai_user', JSON.stringify(currentUser));
-    showApp();
-    loadDashboard();
-  } catch(e) {
-    showError('loginError', e.message);
-  }
-  setLoading('loginBtnText', false, 'Log in');
-}
-
-async function signup() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-  const password = document.getElementById('signupPass').value;
-  if (!name || !email || !password) return showError('signupError', 'All fields are required.');
-  setLoading('signupBtnText', true);
-  try {
-    const res = await apiFetch('/auth/signup', 'POST', { name, email, password }, false);
-    token = res.token;
-    currentUser = res.user;
-    localStorage.setItem('oai_token', token);
-    localStorage.setItem('oai_user', JSON.stringify(currentUser));
-    showApp();
-    loadDashboard();
-    showToast('Account created! Welcome to OutreachAI 🎉', 'success');
-  } catch(e) {
-    showError('signupError', e.message);
-  }
-  setLoading('signupBtnText', false, 'Create account');
-}
-
-function logout() {
-  localStorage.removeItem('oai_token');
-  localStorage.removeItem('oai_user');
-  token = null; currentUser = null;
-  document.getElementById('appPage').style.display = 'none';
-  document.getElementById('authPage').style.display = 'flex';
-}
-
-// ─── NAVIGATION ───────────────────────────────────────────
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  const navItems = document.querySelectorAll('.nav-item');
-  const pages = ['dashboard','leads','emails','pricing'];
-  const idx = pages.indexOf(name);
-  if (idx >= 0) navItems[idx].classList.add('active');
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'leads') loadLeads();
-}
-
-// ─── DASHBOARD ────────────────────────────────────────────
-async function loadDashboard() {
-  try {
-    const res = await apiFetch('/analytics/dashboard');
-    const s = res.stats;
-    document.getElementById('s-total').textContent = s.totalLeads;
-    document.getElementById('s-sent').textContent = s.emailsSent;
-    document.getElementById('s-interested').textContent = s.interested;
-    document.getElementById('s-meetings').textContent = s.meetingsBooked;
-    document.getElementById('s-conv').textContent = s.conversionRate + '%';
-    document.getElementById('s-score').textContent = s.avgScore || '—';
-
-    const pct = s.leadsLimit < 99999 ? Math.round((s.leadsUsed / s.leadsLimit) * 100) : 100;
-    document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
-    document.getElementById('progressText').textContent = `${s.leadsUsed} of ${s.leadsLimit < 99999 ? s.leadsLimit : '∞'} leads used`;
-    document.getElementById('planText').textContent = s.plan.charAt(0).toUpperCase() + s.plan.slice(1) + ' plan';
-
-    if (res.recentLeads.length > 0) {
-      document.getElementById('recentLeadsTable').innerHTML = buildLeadsTable(res.recentLeads, true);
-    } else {
-      document.getElementById('recentLeadsTable').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px 0">No leads yet. <a href="#" onclick="showPage(\'leads\')" style="color:var(--accent2)">Add your first lead →</a></div>';
+    function showApp() {
+      document.getElementById('authPage').style.display = 'none';
+      document.getElementById('appPage').style.display = 'flex';
+      if (currentUser) {
+        document.getElementById('sidebarName').textContent = currentUser.name || 'User';
+        document.getElementById('sidebarEmail').textContent = currentUser.email || '';
+        document.getElementById('sidebarPlan').textContent = (currentUser.plan || 'free').toUpperCase();
+        document.getElementById('dashName').textContent = (currentUser.name || 'Ankit').split(' ')[0];
+      }
     }
-  } catch(e) {
-    console.error('Dashboard error:', e);
-  }
-}
 
-// ─── LEADS ────────────────────────────────────────────────
-async function loadLeads() {
-  try {
-    const res = await apiFetch('/leads');
-    allLeads = res.leads;
-    renderLeadsTable(allLeads);
-  } catch(e) {
-    showToast('Failed to load leads: ' + e.message, 'error');
-  }
-}
+    // ─── AUTH ─────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1)));
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+    }
 
-function renderLeadsTable(leads) {
-  const wrap = document.getElementById('leadsTableWrap');
-  if (!leads.length) {
-    wrap.innerHTML = '<div class="empty"><div class="icon">👥</div><p>No leads found.</p><button class="btn btn-primary" onclick="openAddLead()">+ Add lead</button></div>';
-    return;
-  }
-  wrap.innerHTML = buildLeadsTable(leads, false);
-}
+    async function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPass').value;
+      if (!email || !password) return showError('loginError', 'Please enter email and password.');
+      setLoading('loginBtnText', true);
+      try {
+        const res = await apiFetch('/auth/login', 'POST', { email, password }, false);
+        token = res.token;
+        currentUser = res.user;
+        localStorage.setItem('oai_token', token);
+        localStorage.setItem('oai_user', JSON.stringify(currentUser));
+        showApp();
+        loadDashboard();
+      } catch (e) {
+        showError('loginError', e.message);
+      }
+      setLoading('loginBtnText', false, 'Log in');
+    }
 
-function buildLeadsTable(leads, mini) {
-  const rows = leads.map(l => `
+    async function signup() {
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPass').value;
+      if (!name || !email || !password) return showError('signupError', 'All fields are required.');
+      setLoading('signupBtnText', true);
+      try {
+        const res = await apiFetch('/auth/signup', 'POST', { name, email, password }, false);
+        token = res.token;
+        currentUser = res.user;
+        localStorage.setItem('oai_token', token);
+        localStorage.setItem('oai_user', JSON.stringify(currentUser));
+        showApp();
+        loadDashboard();
+        showToast('Account created! Welcome to OutreachAI 🎉', 'success');
+      } catch (e) {
+        showError('signupError', e.message);
+      }
+      setLoading('signupBtnText', false, 'Create account');
+    }
+
+    function logout() {
+      localStorage.removeItem('oai_token');
+      localStorage.removeItem('oai_user');
+      token = null; currentUser = null;
+      document.getElementById('appPage').style.display = 'none';
+      document.getElementById('authPage').style.display = 'flex';
+    }
+
+    // ─── NAVIGATION ───────────────────────────────────────────
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      const navItems = document.querySelectorAll('.nav-item');
+      const pages = ['dashboard', 'leads', 'emails', 'pricing'];
+      const idx = pages.indexOf(name);
+      if (idx >= 0) navItems[idx].classList.add('active');
+      if (name === 'dashboard') loadDashboard();
+      if (name === 'leads') loadLeads();
+    }
+
+    // ─── DASHBOARD ────────────────────────────────────────────
+    async function loadDashboard() {
+      try {
+        const res = await apiFetch('/analytics/dashboard');
+        const s = res.stats;
+        document.getElementById('s-total').textContent = s.totalLeads;
+        document.getElementById('s-sent').textContent = s.emailsSent;
+        document.getElementById('s-interested').textContent = s.interested;
+        document.getElementById('s-meetings').textContent = s.meetingsBooked;
+        document.getElementById('s-conv').textContent = s.conversionRate + '%';
+        document.getElementById('s-score').textContent = s.avgScore || '—';
+
+        const pct = s.leadsLimit < 99999 ? Math.round((s.leadsUsed / s.leadsLimit) * 100) : 100;
+        document.getElementById('progressFill').style.width = Math.min(pct, 100) + '%';
+        document.getElementById('progressText').textContent = `${s.leadsUsed} of ${s.leadsLimit < 99999 ? s.leadsLimit : '∞'} leads used`;
+        document.getElementById('planText').textContent = s.plan.charAt(0).toUpperCase() + s.plan.slice(1) + ' plan';
+
+        if (res.recentLeads.length > 0) {
+          document.getElementById('recentLeadsTable').innerHTML = buildLeadsTable(res.recentLeads, true);
+        } else {
+          document.getElementById('recentLeadsTable').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:10px 0">No leads yet. <a href="#" onclick="showPage(\'leads\')" style="color:var(--accent2)">Add your first lead →</a></div>';
+        }
+      } catch (e) {
+        console.error('Dashboard error:', e);
+      }
+    }
+
+    // ─── LEADS ────────────────────────────────────────────────
+    async function loadLeads() {
+      try {
+        const res = await apiFetch('/leads');
+        allLeads = res.leads;
+        renderLeadsTable(allLeads);
+      } catch (e) {
+        showToast('Failed to load leads: ' + e.message, 'error');
+      }
+    }
+
+    function renderLeadsTable(leads) {
+      const wrap = document.getElementById('leadsTableWrap');
+      if (!leads.length) {
+        wrap.innerHTML = '<div class="empty"><div class="icon">👥</div><p>No leads found.</p><button class="btn btn-primary" onclick="openAddLead()">+ Add lead</button></div>';
+        return;
+      }
+      wrap.innerHTML = buildLeadsTable(leads, false);
+    }
+
+    function buildLeadsTable(leads, mini) {
+      const rows = leads.map(l => `
     <tr style="cursor:pointer" onclick="openLeadDetail('${l.id}')">
       <td><strong>${esc(l.company)}</strong></td>
       <td style="color:var(--muted)">${esc(l.email)}</td>
       <td><span class="status-badge ${statusClass(l.status)}">${l.status}</span></td>
-      ${!mini ? `<td style="color:var(--muted)">${l.replyCategory||'—'}</td>` : ''}
+      ${!mini ? `<td style="color:var(--muted)">${l.replyCategory || '—'}</td>` : ''}
       ${!mini ? `<td>${l.score ? `<span style="color:var(--accent2)">${l.score}</span>` : '—'}</td>` : ''}
-      <td style="color:var(--muted);font-size:11px">${l.dateSent||'—'}</td>
+      <td style="color:var(--muted);font-size:11px">${l.dateSent || '—'}</td>
     </tr>`).join('');
-  return `<table>
+      return `<table>
     <thead><tr>
       <th>Company</th><th>Email</th><th>Status</th>
       ${!mini ? '<th>Reply</th><th>Score</th>' : ''}
@@ -567,68 +1339,68 @@ function buildLeadsTable(leads, mini) {
     </tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
-}
+    }
 
-function filterLeads() {
-  const search = document.getElementById('leadSearch').value.toLowerCase();
-  const status = document.getElementById('statusFilter').value;
-  const filtered = allLeads.filter(l => {
-    const matchSearch = !search || l.company.toLowerCase().includes(search) || l.email.toLowerCase().includes(search);
-    const matchStatus = status === 'all' || l.status === status;
-    return matchSearch && matchStatus;
-  });
-  renderLeadsTable(filtered);
-}
+    function filterLeads() {
+      const search = document.getElementById('leadSearch').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const filtered = allLeads.filter(l => {
+        const matchSearch = !search || l.company.toLowerCase().includes(search) || l.email.toLowerCase().includes(search);
+        const matchStatus = status === 'all' || l.status === status;
+        return matchSearch && matchStatus;
+      });
+      renderLeadsTable(filtered);
+    }
 
-function openAddLead() { openModal('addLeadModal'); }
+    function openAddLead() { openModal('addLeadModal'); }
 
-async function addLead() {
-  const company = document.getElementById('mlCompany').value.trim();
-  const email = document.getElementById('mlEmail').value.trim();
-  const website = document.getElementById('mlWebsite').value.trim();
-  const senderEmail = document.getElementById('mlSender').value.trim();
-  if (!company || !email) return showToast('Company and email are required.', 'error');
-  setLoading('addLeadBtnText', true);
-  try {
-    await apiFetch('/leads', 'POST', { company, email, website, senderEmail });
-    closeModal('addLeadModal');
-    document.getElementById('mlCompany').value = '';
-    document.getElementById('mlEmail').value = '';
-    document.getElementById('mlWebsite').value = '';
-    document.getElementById('mlSender').value = '';
-    showToast('Lead added successfully!', 'success');
-    loadLeads();
-  } catch(e) {
-    showToast(e.message, 'error');
-  }
-  setLoading('addLeadBtnText', false, 'Add lead');
-}
+    async function addLead() {
+      const company = document.getElementById('mlCompany').value.trim();
+      const email = document.getElementById('mlEmail').value.trim();
+      const website = document.getElementById('mlWebsite').value.trim();
+      const senderEmail = document.getElementById('mlSender').value.trim();
+      if (!company || !email) return showToast('Company and email are required.', 'error');
+      setLoading('addLeadBtnText', true);
+      try {
+        await apiFetch('/leads', 'POST', { company, email, website, senderEmail });
+        closeModal('addLeadModal');
+        document.getElementById('mlCompany').value = '';
+        document.getElementById('mlEmail').value = '';
+        document.getElementById('mlWebsite').value = '';
+        document.getElementById('mlSender').value = '';
+        showToast('Lead added successfully!', 'success');
+        loadLeads();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+      setLoading('addLeadBtnText', false, 'Add lead');
+    }
 
-async function bulkImport() {
-  const raw = document.getElementById('bulkData').value.trim();
-  if (!raw) return showToast('Please paste CSV data.', 'error');
-  const lines = raw.split('\n').filter(l => l.trim());
-  const leads = lines.map(line => {
-    const parts = line.split(',').map(p => p.trim());
-    return { company: parts[0], email: parts[1], website: parts[2] || '' };
-  }).filter(l => l.company && l.email);
-  if (!leads.length) return showToast('No valid leads found. Format: Company, Email, Website', 'error');
-  try {
-    const res = await apiFetch('/leads/bulk', 'POST', { leads });
-    closeModal('bulkModal');
-    document.getElementById('bulkData').value = '';
-    showToast(res.message, 'success');
-    loadLeads();
-  } catch(e) {
-    showToast(e.message, 'error');
-  }
-}
+    async function bulkImport() {
+      const raw = document.getElementById('bulkData').value.trim();
+      if (!raw) return showToast('Please paste CSV data.', 'error');
+      const lines = raw.split('\n').filter(l => l.trim());
+      const leads = lines.map(line => {
+        const parts = line.split(',').map(p => p.trim());
+        return { company: parts[0], email: parts[1], website: parts[2] || '' };
+      }).filter(l => l.company && l.email);
+      if (!leads.length) return showToast('No valid leads found. Format: Company, Email, Website', 'error');
+      try {
+        const res = await apiFetch('/leads/bulk', 'POST', { leads });
+        closeModal('bulkModal');
+        document.getElementById('bulkData').value = '';
+        showToast(res.message, 'success');
+        loadLeads();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
 
-async function openLeadDetail(id) {
-  const lead = allLeads.find(l => l.id === id);
-  if (!lead) return;
-  document.getElementById('ldTitle').innerHTML = `${esc(lead.company)} <button class="modal-close" onclick="closeModal('leadDetailModal')">×</button>`;
-  document.getElementById('ldContent').innerHTML = `
+    async function openLeadDetail(id) {
+      const lead = allLeads.find(l => l.id === id);
+      if (!lead) return;
+      document.getElementById('ldTitle').innerHTML = `${esc(lead.company)} <button class="modal-close" onclick="closeModal('leadDetailModal')">×</button>`;
+      document.getElementById('ldContent').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
       <div><div style="font-size:10px;color:var(--muted);font-family:var(--font-mono)">EMAIL</div><div style="font-size:13px">${esc(lead.email)}</div></div>
       <div><div style="font-size:10px;color:var(--muted)">STATUS</div><span class="status-badge ${statusClass(lead.status)}">${lead.status}</span></div>
@@ -639,183 +1411,184 @@ async function openLeadDetail(id) {
     </div>
     ${lead.lastReply ? `<div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:12px;color:var(--muted)"><strong style="color:var(--text)">Last reply:</strong><br>${esc(lead.lastReply)}</div>` : ''}
   `;
-  document.getElementById('ldDeleteBtn').onclick = () => deleteLead(id);
-  document.getElementById('ldEmailBtn').onclick = () => {
-    closeModal('leadDetailModal');
-    document.getElementById('genCompany').value = lead.company;
-    document.getElementById('genWebsite').value = lead.website || '';
-    showPage('emails');
-    generateEmail();
-  };
-  openModal('leadDetailModal');
-}
-
-async function deleteLead(id) {
-  if (!confirm('Delete this lead?')) return;
-  try {
-    await apiFetch('/leads/'+id, 'DELETE');
-    closeModal('leadDetailModal');
-    showToast('Lead deleted.', 'success');
-    loadLeads();
-  } catch(e) {
-    showToast(e.message, 'error');
-  }
-}
-
-// ─── EMAILS ───────────────────────────────────────────────
-async function generateEmail() {
-  const company = document.getElementById('genCompany').value.trim();
-  const website = document.getElementById('genWebsite').value.trim();
-  if (!company) return showToast('Enter a company name first.', 'error');
-  setLoading('genBtnText', true);
-  try {
-    const res = await apiFetch('/emails/generate', 'POST', { company, website });
-    document.getElementById('genSubject').value = res.subject;
-    document.getElementById('genBody').value = res.body;
-    document.getElementById('generatedEmail').style.display = 'block';
-    showToast('Email generated!', 'success');
-  } catch(e) {
-    showToast('Failed to generate: ' + e.message, 'error');
-  }
-  setLoading('genBtnText', false, 'Generate email with AI');
-}
-
-async function triggerEmails() {
-  if (!confirm('Trigger email campaign for all New leads? This will send via your n8n workflow.')) return;
-  try {
-    const res = await apiFetch('/emails/send', 'POST', {});
-    showToast(res.message, 'success');
-    document.getElementById('campaignStats').textContent = res.message;
-  } catch(e) {
-    showToast(e.message, 'error');
-  }
-}
-
-// ─── PAYMENTS ─────────────────────────────────────────────
-async function startPayment(plan, amount, planName) {
-  try {
-    const order = await apiFetch('/payments/create-order', 'POST', { plan });
-
-    if (order.demo) {
-      showToast('Demo mode: Add your Razorpay key to .env for real payments. Plan activated for demo!', 'success');
-      const res = await apiFetch('/payments/verify', 'POST', {
-        razorpay_order_id: order.orderId,
-        razorpay_payment_id: 'demo_pay_'+Date.now(),
-        razorpay_signature: 'demo_sig',
-        plan
-      });
-      currentUser.plan = plan;
-      localStorage.setItem('oai_user', JSON.stringify(currentUser));
-      document.getElementById('sidebarPlan').textContent = plan.toUpperCase();
-      return;
+      document.getElementById('ldDeleteBtn').onclick = () => deleteLead(id);
+      document.getElementById('ldEmailBtn').onclick = () => {
+        closeModal('leadDetailModal');
+        document.getElementById('genCompany').value = lead.company;
+        document.getElementById('genWebsite').value = lead.website || '';
+        showPage('emails');
+        generateEmail();
+      };
+      openModal('leadDetailModal');
     }
 
-    const options = {
-      key: order.keyId || RAZORPAY_KEY,
-      amount: order.amount,
-      currency: 'INR',
-      name: 'OutreachAI',
-      description: planName + ' Plan',
-      order_id: order.orderId,
-      prefill: { email: currentUser?.email || '' },
-      theme: { color: '#6366F1' },
-      handler: async (response) => {
-        try {
-          await apiFetch('/payments/verify', 'POST', {
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
+    async function deleteLead(id) {
+      if (!confirm('Delete this lead?')) return;
+      try {
+        await apiFetch('/leads/' + id, 'DELETE');
+        closeModal('leadDetailModal');
+        showToast('Lead deleted.', 'success');
+        loadLeads();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // ─── EMAILS ───────────────────────────────────────────────
+    async function generateEmail() {
+      const company = document.getElementById('genCompany').value.trim();
+      const website = document.getElementById('genWebsite').value.trim();
+      if (!company) return showToast('Enter a company name first.', 'error');
+      setLoading('genBtnText', true);
+      try {
+        const res = await apiFetch('/emails/generate', 'POST', { company, website });
+        document.getElementById('genSubject').value = res.subject;
+        document.getElementById('genBody').value = res.body;
+        document.getElementById('generatedEmail').style.display = 'block';
+        showToast('Email generated!', 'success');
+      } catch (e) {
+        showToast('Failed to generate: ' + e.message, 'error');
+      }
+      setLoading('genBtnText', false, 'Generate email with AI');
+    }
+
+    async function triggerEmails() {
+      if (!confirm('Trigger email campaign for all New leads? This will send via your n8n workflow.')) return;
+      try {
+        const res = await apiFetch('/emails/send', 'POST', {});
+        showToast(res.message, 'success');
+        document.getElementById('campaignStats').textContent = res.message;
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // ─── PAYMENTS ─────────────────────────────────────────────
+    async function startPayment(plan, amount, planName) {
+      try {
+        const order = await apiFetch('/payments/create-order', 'POST', { plan });
+
+        if (order.demo) {
+          showToast('Demo mode: Add your Razorpay key to .env for real payments. Plan activated for demo!', 'success');
+          const res = await apiFetch('/payments/verify', 'POST', {
+            razorpay_order_id: order.orderId,
+            razorpay_payment_id: 'demo_pay_' + Date.now(),
+            razorpay_signature: 'demo_sig',
             plan
           });
           currentUser.plan = plan;
           localStorage.setItem('oai_user', JSON.stringify(currentUser));
           document.getElementById('sidebarPlan').textContent = plan.toUpperCase();
-          showToast(`${planName} plan activated! 🎉`, 'success');
-          loadDashboard();
-        } catch(e) {
-          showToast('Payment verification failed: ' + e.message, 'error');
+          return;
         }
-      },
-      modal: { ondismiss: () => showToast('Payment cancelled.') }
-    };
 
-    if (typeof Razorpay === 'undefined') {
-      return showToast('Razorpay not loaded. Check your internet connection.', 'error');
+        const options = {
+          key: order.keyId || RAZORPAY_KEY,
+          amount: order.amount,
+          currency: 'INR',
+          name: 'OutreachAI',
+          description: planName + ' Plan',
+          order_id: order.orderId,
+          prefill: { email: currentUser?.email || '' },
+          theme: { color: '#6366F1' },
+          handler: async (response) => {
+            try {
+              await apiFetch('/payments/verify', 'POST', {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                plan
+              });
+              currentUser.plan = plan;
+              localStorage.setItem('oai_user', JSON.stringify(currentUser));
+              document.getElementById('sidebarPlan').textContent = plan.toUpperCase();
+              showToast(`${planName} plan activated! 🎉`, 'success');
+              loadDashboard();
+            } catch (e) {
+              showToast('Payment verification failed: ' + e.message, 'error');
+            }
+          },
+          modal: { ondismiss: () => showToast('Payment cancelled.') }
+        };
+
+        if (typeof Razorpay === 'undefined') {
+          return showToast('Razorpay not loaded. Check your internet connection.', 'error');
+        }
+        new Razorpay(options).open();
+      } catch (e) {
+        showToast('Payment error: ' + e.message, 'error');
+      }
     }
-    new Razorpay(options).open();
-  } catch(e) {
-    showToast('Payment error: ' + e.message, 'error');
-  }
-}
 
-// ─── HELPERS ──────────────────────────────────────────────
-async function apiFetch(path, method='GET', body=null, auth=true) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json', ...(auth && token ? { Authorization: 'Bearer '+token } : {}) }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + path, opts);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Request failed');
-  return data;
-}
+    // ─── HELPERS ──────────────────────────────────────────────
+    async function apiFetch(path, method = 'GET', body = null, auth = true) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json', ...(auth && token ? { Authorization: 'Bearer ' + token } : {}) }
+      };
+      if (body) opts.body = JSON.stringify(body);
+      const res = await fetch(API + path, opts);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => t.className = 'toast', 3500);
-}
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => t.className = 'toast', 3500);
+    }
 
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 4000);
-}
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
 
-function setLoading(id, loading, defaultText='') {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (loading) {
-    el.innerHTML = '<span class="loading"></span>Loading...';
-    el.closest('button').disabled = true;
-  } else {
-    el.textContent = defaultText;
-    el.closest('button').disabled = false;
-  }
-}
+    function setLoading(id, loading, defaultText = '') {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (loading) {
+        el.innerHTML = '<span class="loading"></span>Loading...';
+        el.closest('button').disabled = true;
+      } else {
+        el.textContent = defaultText;
+        el.closest('button').disabled = false;
+      }
+    }
 
-function statusClass(s) {
-  if (s==='New') return 's-new';
-  if (s==='Sent') return 's-sent';
-  if (s==='Interested'||s==='Meeting Sent') return 's-interested';
-  if (s==='NotInterested') return 's-not';
-  if (s==='Meeting Sent') return 's-meeting';
-  return 's-replied';
-}
+    function statusClass(s) {
+      if (s === 'New') return 's-new';
+      if (s === 'Sent') return 's-sent';
+      if (s === 'Interested' || s === 'Meeting Sent') return 's-interested';
+      if (s === 'NotInterested') return 's-not';
+      if (s === 'Meeting Sent') return 's-meeting';
+      return 's-replied';
+    }
 
-function esc(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+    function esc(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-// Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
-});
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+    });
 
-// Enter key for auth
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('loginForm').style.display !== 'none') login();
-    else signup();
-  }
-});
-</script>
+    // Enter key for auth
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        if (document.getElementById('loginForm').style.display !== 'none') login();
+        else signup();
+      }
+    });
+  </script>
 </body>
+
 </html>
