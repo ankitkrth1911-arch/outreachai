@@ -1,684 +1,1764 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>OutreachAI — AI Sales Agent for Growing Teams</title>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-:root{
-  --bg:#0A0F1E;--bg2:#0F1629;--bg3:#151d35;
-  --accent:#6366F1;--accent2:#818CF8;--accent-glow:rgba(99,102,241,0.15);
-  --text:#E8EAF0;--muted:#7C85A2;
-  --border:rgba(255,255,255,0.08);--border-accent:rgba(99,102,241,0.3);
-  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
-  --green:#22c55e;--green-bg:rgba(34,197,94,0.1);
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:inherit;text-decoration:none}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OutreachAI — AI Sales Agent for Growing Teams</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:rgba(10,15,30,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-logo{font-size:18px;font-weight:600;letter-spacing:-0.3px;display:flex;align-items:center;gap:8px}
-.nav-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-.nav-links{display:flex;align-items:center;gap:32px}
-.nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
-.nav-links a:hover{color:var(--text)}
-.nav-cta{background:var(--accent);color:#fff;font-size:13px;font-weight:500;padding:8px 18px;border-radius:8px;border:none;cursor:pointer;transition:opacity .2s}
-.nav-cta:hover{opacity:.85}
+    :root {
+      --bg: #0A0F1E;
+      --bg2: #0F1629;
+      --bg3: #151d35;
+      --accent: #6366F1;
+      --accent2: #818CF8;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --text: #E8EAF0;
+      --muted: #7C85A2;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.3);
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.1);
+    }
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 40px 80px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--accent2);background:var(--accent-glow);border:1px solid var(--border-accent);padding:6px 14px;border-radius:100px;margin-bottom:28px}
-.eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(99,102,241,0.4)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(99,102,241,0)}}
-.hero h1{font-size:clamp(36px,5.5vw,68px);font-weight:600;line-height:1.1;letter-spacing:-1.5px;max-width:820px;margin-bottom:20px}
-.hero h1 .accent{color:var(--accent2)}
-.hero-sub{font-size:clamp(15px,1.8vw,18px);color:var(--muted);max-width:520px;line-height:1.65;margin-bottom:40px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:64px}
-.btn-primary{background:var(--accent);color:#fff;font-size:15px;font-weight:500;padding:13px 28px;border-radius:10px;border:none;cursor:pointer;transition:all .2s}
-.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
-.btn-ghost{background:transparent;color:var(--text);font-size:15px;font-weight:400;padding:13px 28px;border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .2s}
-.btn-ghost:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* COMPOSER */
-.composer{width:100%;max-width:580px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;text-align:left}
-.composer-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg3)}
-.composer-bar .dot{width:10px;height:10px;border-radius:50%}
-.composer-bar .dot:nth-child(1){background:#FF5F57}
-.composer-bar .dot:nth-child(2){background:#FFBD2E}
-.composer-bar .dot:nth-child(3){background:#28CA41}
-.composer-label{margin-left:8px;font-size:12px;color:var(--muted);font-family:var(--mono)}
-.composer-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--accent2);font-family:var(--mono)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.5s ease-in-out infinite}
-.composer-body{padding:20px 20px 16px}
-.composer-field{display:flex;gap:10px;align-items:baseline;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);margin-bottom:4px}
-.field-label{color:var(--muted);font-family:var(--mono);min-width:56px}
-.field-value{color:var(--text);font-size:13px}
-.field-value.accent{color:var(--accent2)}
-.composer-content{margin-top:14px;font-size:13px;color:var(--text);line-height:1.7;min-height:96px}
-.cursor{display:inline-block;width:2px;height:14px;background:var(--accent);margin-left:1px;vertical-align:text-bottom;animation:blink 1s step-end infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.composer-footer{padding:10px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);margin-top:8px}
-.composer-footer span{font-size:11px;color:var(--muted);font-family:var(--mono)}
-.send-btn{background:var(--accent);color:#fff;font-size:12px;font-weight:500;padding:6px 16px;border-radius:6px;border:none;cursor:pointer}
+    html {
+      scroll-behavior: smooth
+    }
 
-/* STATS */
-.stats{display:flex;justify-content:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2)}
-.stat-item{flex:1;max-width:240px;padding:28px 24px;text-align:center;border-right:1px solid var(--border)}
-.stat-item:last-child{border-right:none}
-.stat-num{font-size:36px;font-weight:600;letter-spacing:-1px;color:var(--text);font-family:var(--mono)}
-.stat-num span{color:var(--accent2)}
-.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
 
-/* SECTIONS */
-section{padding:96px 40px;max-width:1080px;margin:0 auto}
-.section-eyebrow{font-family:var(--mono);font-size:11px;color:var(--accent2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
-.section-title{font-size:clamp(26px,3.5vw,40px);font-weight:600;letter-spacing:-.8px;line-height:1.15;margin-bottom:16px}
-.section-sub{font-size:16px;color:var(--muted);max-width:480px;line-height:1.65}
+    a {
+      color: inherit;
+      text-decoration: none
+    }
 
-/* HOW IT WORKS */
-.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0;margin-top:56px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.flow-step{padding:28px 24px;border-right:1px solid var(--border);position:relative}
-.flow-step:last-child{border-right:none}
-.flow-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;z-index:1}
-.flow-step:last-child::after{display:none}
-.step-icon{width:36px;height:36px;border-radius:8px;background:var(--accent-glow);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px}
-.step-name{font-size:14px;font-weight:500;margin-bottom:6px}
-.step-desc{font-size:12px;color:var(--muted);line-height:1.5}
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(10, 15, 30, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border)
+    }
 
-/* FEATURES */
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:56px}
-.feature-card{background:var(--bg2);padding:28px 26px;transition:background .2s}
-.feature-card:hover{background:var(--bg3)}
-.feature-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:16px}
-.feature-title{font-size:15px;font-weight:500;margin-bottom:8px}
-.feature-desc{font-size:13px;color:var(--muted);line-height:1.6}
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
 
-/* PRICING */
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:56px}
-.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px 24px;position:relative;transition:border-color .2s}
-.price-card:hover{border-color:rgba(255,255,255,.15)}
-.price-card.featured{border-color:var(--accent);background:linear-gradient(160deg,rgba(99,102,241,0.08) 0%,var(--bg2) 60%)}
-.popular-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:11px;font-weight:500;padding:3px 14px;border-radius:100px;white-space:nowrap}
-.launch-badge{position:absolute;top:-11px;right:16px;background:var(--green);color:#fff;font-size:10px;font-weight:500;padding:3px 10px;border-radius:100px;white-space:nowrap}
-.plan-name{font-size:13px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)}
-.plan-price{font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:4px}
-.plan-price sup{font-size:18px;font-weight:400;vertical-align:super}
-.plan-original{font-size:13px;color:var(--muted);text-decoration:line-through;margin-bottom:2px}
-.plan-cycle{font-size:12px;color:var(--muted);margin-bottom:20px}
-.plan-features{list-style:none;margin-bottom:24px}
-.plan-features li{font-size:13px;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.plan-features li:last-child{border-bottom:none}
-.plan-features li::before{content:'✓';color:var(--accent2);font-size:12px;font-weight:600;flex-shrink:0}
-.plan-btn{width:100%;padding:11px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);transition:all .2s}
-.plan-btn:hover{background:rgba(255,255,255,.06)}
-.plan-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.plan-btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
-.plan-btn:disabled{opacity:.5;cursor:not-allowed}
+    .nav-logo .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent)
+    }
 
-/* CONTACT SECTION */
-.contact-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:96px 40px}
-.contact-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
-.contact-info h2{font-size:clamp(24px,3vw,36px);font-weight:600;letter-spacing:-.6px;margin-bottom:14px}
-.contact-info p{font-size:15px;color:var(--muted);line-height:1.65;margin-bottom:32px}
-.contact-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
-.contact-item:last-child{border-bottom:none}
-.contact-icon{width:40px;height:40px;border-radius:10px;background:var(--accent-glow);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.contact-detail{flex:1}
-.contact-label{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:2px}
-.contact-value{font-size:14px;color:var(--text);font-weight:500}
-.contact-value a{color:var(--accent2)}
-.contact-value a:hover{text-decoration:underline}
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px
+    }
 
-/* CONTACT FORM */
-.contact-form-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:32px}
-.contact-form-card h3{font-size:17px;font-weight:500;margin-bottom:20px}
-.form-row{margin-bottom:14px}
-.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-family:var(--mono)}
-.form-row input,.form-row textarea,.form-row select{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:14px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .2s;resize:none}
-.form-row input:focus,.form-row textarea:focus,.form-row select:focus{border-color:var(--accent)}
-.form-row input::placeholder,.form-row textarea::placeholder{color:var(--muted)}
-.form-row select option{background:var(--bg2);color:var(--text)}
-.form-submit{width:100%;background:var(--accent);color:#fff;font-size:15px;font-weight:500;padding:13px;border-radius:8px;border:none;cursor:pointer;margin-top:6px;transition:all .2s}
-.form-submit:hover{background:var(--accent2);transform:translateY(-1px)}
-.form-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.form-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;font-family:var(--mono)}
-.success-msg{display:none;text-align:center;padding:24px;font-size:15px;color:var(--accent2)}
+    .nav-links a {
+      font-size: 14px;
+      color: var(--muted);
+      transition: color .2s
+    }
 
-/* LEAD FORM SECTION */
-.form-section{padding:96px 40px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.form-inner{max-width:520px;margin:0 auto;text-align:center}
-.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:36px;margin-top:40px;text-align:left}
+    .nav-links a:hover {
+      color: var(--text)
+    }
 
-/* FOOTER */
-footer{padding:40px;background:var(--bg2);border-top:1px solid var(--border)}
-.footer-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
-.footer-brand .logo{font-size:17px;font-weight:600;margin-bottom:10px}
-.footer-brand p{font-size:13px;color:var(--muted);line-height:1.6;max-width:240px}
-.footer-col h4{font-size:12px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
-.footer-col a{display:block;font-size:13px;color:var(--muted);padding:4px 0;transition:color .2s}
-.footer-col a:hover{color:var(--text)}
-.footer-bottom{max-width:1080px;margin:32px auto 0;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.footer-bottom p{font-size:12px;color:var(--muted)}
+    .nav-cta {
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity .2s
+    }
 
-/* WHATSAPP FLOAT */
-.wa-float{position:fixed;bottom:24px;right:24px;z-index:999;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,0.35);cursor:pointer;transition:transform .2s;text-decoration:none;font-size:26px}
-.wa-float:hover{transform:scale(1.08)}
+    .nav-cta:hover {
+      opacity: .85
+    }
 
-/* RAZORPAY MODAL OVERLAY */
-.rz-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center}
-.rz-overlay.open{display:flex}
-.rz-modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:36px;max-width:420px;width:90%;text-align:center}
-.rz-modal h3{font-size:18px;font-weight:600;margin-bottom:8px}
-.rz-modal p{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.5}
-.rz-plan-badge{display:inline-block;background:var(--accent-glow);border:1px solid var(--border-accent);color:var(--accent2);font-size:12px;font-family:var(--mono);padding:4px 12px;border-radius:20px;margin-bottom:16px}
-.rz-amount{font-size:32px;font-weight:600;letter-spacing:-1px;margin-bottom:4px}
-.rz-amount sup{font-size:16px;font-weight:400;vertical-align:super}
-.rz-note{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:28px}
-.rz-btn{width:100%;background:var(--accent);color:#fff;font-size:15px;font-weight:500;padding:13px;border-radius:8px;border:none;cursor:pointer;margin-bottom:10px;transition:background .2s}
-.rz-btn:hover{background:var(--accent2)}
-.rz-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);width:100%;padding:10px;border-radius:8px;font-size:14px;cursor:pointer}
-.rz-cancel:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 40px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden
+    }
 
-/* TOAST */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none
+    }
 
-/* RESPONSIVE */
-@media(max-width:768px){
-  nav{padding:0 20px}
-  .nav-links{display:none}
-  .hero{padding:100px 20px 60px}
-  section{padding:64px 20px}
-  .stats{flex-direction:column}
-  .stat-item{border-right:none;border-bottom:1px solid var(--border)}
-  .flow{grid-template-columns:1fr 1fr}
-  .flow-step::after{display:none}
-  .contact-inner{grid-template-columns:1fr}
-  .form-section{padding:64px 20px}
-  .form-card{padding:24px}
-  .footer-inner{grid-template-columns:1fr 1fr;gap:24px}
-  footer{padding:32px 20px}
-}
-@media(max-width:480px){
-  .footer-inner{grid-template-columns:1fr}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent2);
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 28px
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4)
+      }
+
+      50% {
+        opacity: .7;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0)
+      }
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5.5vw, 68px);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      max-width: 820px;
+      margin-bottom: 20px
+    }
+
+    .hero h1 .accent {
+      color: var(--accent2)
+    }
+
+    .hero-sub {
+      font-size: clamp(15px, 1.8vw, 18px);
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.65;
+      margin-bottom: 40px
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 64px
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 13px 28px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .btn-primary:hover {
+      background: var(--accent2);
+      transform: translateY(-1px)
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 400;
+      padding: 13px 28px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, .2);
+      background: rgba(255, 255, 255, .04)
+    }
+
+    /* COMPOSER */
+    .composer {
+      width: 100%;
+      max-width: 580px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      text-align: left
+    }
+
+    .composer-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3)
+    }
+
+    .composer-bar .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%
+    }
+
+    .composer-bar .dot:nth-child(1) {
+      background: #FF5F57
+    }
+
+    .composer-bar .dot:nth-child(2) {
+      background: #FFBD2E
+    }
+
+    .composer-bar .dot:nth-child(3) {
+      background: #28CA41
+    }
+
+    .composer-label {
+      margin-left: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono)
+    }
+
+    .composer-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--accent2);
+      font-family: var(--mono)
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.5s ease-in-out infinite
+    }
+
+    .composer-body {
+      padding: 20px 20px 16px
+    }
+
+    .composer-field {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 12px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px
+    }
+
+    .field-label {
+      color: var(--muted);
+      font-family: var(--mono);
+      min-width: 56px
+    }
+
+    .field-value {
+      color: var(--text);
+      font-size: 13px
+    }
+
+    .field-value.accent {
+      color: var(--accent2)
+    }
+
+    .composer-content {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 96px
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: var(--accent);
+      margin-left: 1px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0
+      }
+    }
+
+    .composer-footer {
+      padding: 10px 20px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      margin-top: 8px
+    }
+
+    .composer-footer span {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono)
+    }
+
+    .send-btn {
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer
+    }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2)
+    }
+
+    .stat-item {
+      flex: 1;
+      max-width: 240px;
+      padding: 28px 24px;
+      text-align: center;
+      border-right: 1px solid var(--border)
+    }
+
+    .stat-item:last-child {
+      border-right: none
+    }
+
+    .stat-num {
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      color: var(--text);
+      font-family: var(--mono)
+    }
+
+    .stat-num span {
+      color: var(--accent2)
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 96px 40px;
+      max-width: 1080px;
+      margin: 0 auto
+    }
+
+    .section-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px
+    }
+
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 600;
+      letter-spacing: -.8px;
+      line-height: 1.15;
+      margin-bottom: 16px
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.65
+    }
+
+    /* HOW IT WORKS */
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0;
+      margin-top: 56px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden
+    }
+
+    .flow-step {
+      padding: 28px 24px;
+      border-right: 1px solid var(--border);
+      position: relative
+    }
+
+    .flow-step:last-child {
+      border-right: none
+    }
+
+    .flow-step::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 16px;
+      z-index: 1
+    }
+
+    .flow-step:last-child::after {
+      display: none
+    }
+
+    .step-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      margin-bottom: 14px
+    }
+
+    .step-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5
+    }
+
+    /* FEATURES */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 56px
+    }
+
+    .feature-card {
+      background: var(--bg2);
+      padding: 28px 26px;
+      transition: background .2s
+    }
+
+    .feature-card:hover {
+      background: var(--bg3)
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 16px
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 8px
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 56px
+    }
+
+    .price-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      position: relative;
+      transition: border-color .2s
+    }
+
+    .price-card:hover {
+      border-color: rgba(255, 255, 255, .15)
+    }
+
+    .price-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(160deg, rgba(99, 102, 241, 0.08) 0%, var(--bg2) 60%)
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 14px;
+      border-radius: 100px;
+      white-space: nowrap
+    }
+
+    .launch-badge {
+      position: absolute;
+      top: -11px;
+      right: 16px;
+      background: var(--green);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 100px;
+      white-space: nowrap
+    }
+
+    .plan-name {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-family: var(--mono)
+    }
+
+    .plan-price {
+      font-size: 36px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 4px
+    }
+
+    .plan-price sup {
+      font-size: 18px;
+      font-weight: 400;
+      vertical-align: super
+    }
+
+    .plan-original {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: line-through;
+      margin-bottom: 2px
+    }
+
+    .plan-cycle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 20px
+    }
+
+    .plan-features {
+      list-style: none;
+      margin-bottom: 24px
+    }
+
+    .plan-features li {
+      font-size: 13px;
+      color: var(--muted);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .plan-features li:last-child {
+      border-bottom: none
+    }
+
+    .plan-features li::before {
+      content: '✓';
+      color: var(--accent2);
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0
+    }
+
+    .plan-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      transition: all .2s
+    }
+
+    .plan-btn:hover {
+      background: rgba(255, 255, 255, .06)
+    }
+
+    .plan-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff
+    }
+
+    .plan-btn.primary:hover {
+      background: var(--accent2);
+      border-color: var(--accent2)
+    }
+
+    .plan-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+
+    /* CONTACT SECTION */
+    .contact-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 96px 40px
+    }
+
+    .contact-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start
+    }
+
+    .contact-info h2 {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 600;
+      letter-spacing: -.6px;
+      margin-bottom: 14px
+    }
+
+    .contact-info p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 32px
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .contact-item:last-child {
+      border-bottom: none
+    }
+
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0
+    }
+
+    .contact-detail {
+      flex: 1
+    }
+
+    .contact-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 2px
+    }
+
+    .contact-value {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500
+    }
+
+    .contact-value a {
+      color: var(--accent2)
+    }
+
+    .contact-value a:hover {
+      text-decoration: underline
+    }
+
+    /* CONTACT FORM */
+    .contact-form-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px
+    }
+
+    .contact-form-card h3 {
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 20px
+    }
+
+    .form-row {
+      margin-bottom: 14px
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-family: var(--mono)
+    }
+
+    .form-row input,
+    .form-row textarea,
+    .form-row select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: var(--sans);
+      outline: none;
+      transition: border-color .2s;
+      resize: none
+    }
+
+    .form-row input:focus,
+    .form-row textarea:focus,
+    .form-row select:focus {
+      border-color: var(--accent)
+    }
+
+    .form-row input::placeholder,
+    .form-row textarea::placeholder {
+      color: var(--muted)
+    }
+
+    .form-row select option {
+      background: var(--bg2);
+      color: var(--text)
+    }
+
+    .form-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: all .2s
+    }
+
+    .form-submit:hover {
+      background: var(--accent2);
+      transform: translateY(-1px)
+    }
+
+    .form-submit:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .form-note {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+      font-family: var(--mono)
+    }
+
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 24px;
+      font-size: 15px;
+      color: var(--accent2)
+    }
+
+    /* LEAD FORM SECTION */
+    .form-section {
+      padding: 96px 40px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border)
+    }
+
+    .form-inner {
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: center
+    }
+
+    .form-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      margin-top: 40px;
+      text-align: left
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 40px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border)
+    }
+
+    .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px
+    }
+
+    .footer-brand .logo {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 10px
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 240px
+    }
+
+    .footer-col h4 {
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 14px
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 0;
+      transition: color .2s
+    }
+
+    .footer-col a:hover {
+      color: var(--text)
+    }
+
+    .footer-bottom {
+      max-width: 1080px;
+      margin: 32px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .footer-bottom p {
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    /* WHATSAPP FLOAT */
+    .wa-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+      cursor: pointer;
+      transition: transform .2s;
+      text-decoration: none;
+      font-size: 26px
+    }
+
+    .wa-float:hover {
+      transform: scale(1.08)
+    }
+
+    /* RAZORPAY MODAL OVERLAY */
+    .rz-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 500;
+      align-items: center;
+      justify-content: center
+    }
+
+    .rz-overlay.open {
+      display: flex
+    }
+
+    .rz-modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center
+    }
+
+    .rz-modal h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px
+    }
+
+    .rz-modal p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.5
+    }
+
+    .rz-plan-badge {
+      display: inline-block;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+      color: var(--accent2);
+      font-size: 12px;
+      font-family: var(--mono);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px
+    }
+
+    .rz-amount {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 4px
+    }
+
+    .rz-amount sup {
+      font-size: 16px;
+      font-weight: 400;
+      vertical-align: super
+    }
+
+    .rz-note {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 28px
+    }
+
+    .rz-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 13px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background .2s
+    }
+
+    .rz-btn:hover {
+      background: var(--accent2)
+    }
+
+    .rz-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer
+    }
+
+    .rz-cancel:hover {
+      border-color: rgba(255, 255, 255, .2);
+      color: var(--text)
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0)
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:768px) {
+      nav {
+        padding: 0 20px
+      }
+
+      .nav-links {
+        display: none
+      }
+
+      .hero {
+        padding: 100px 20px 60px
+      }
+
+      section {
+        padding: 64px 20px
+      }
+
+      .stats {
+        flex-direction: column
+      }
+
+      .stat-item {
+        border-right: none;
+        border-bottom: 1px solid var(--border)
+      }
+
+      .flow {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .flow-step::after {
+        display: none
+      }
+
+      .contact-inner {
+        grid-template-columns: 1fr
+      }
+
+      .form-section {
+        padding: 64px 20px
+      }
+
+      .form-card {
+        padding: 24px
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px
+      }
+
+      footer {
+        padding: 32px 20px
+      }
+    }
+
+    @media(max-width:480px) {
+      .footer-inner {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      * {
+        animation: none !important;
+        transition: none !important
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo"><div class="dot"></div>OutreachAI</div>
-  <div class="nav-links">
-    <a href="#how-it-works">How it works</a>
-    <a href="#features">Features</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#contact">Contact</a>
-  </div>
-  <button class="nav-cta" onclick="scroll2('lead-form')">Get early access</button>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-eyebrow"><div class="eyebrow-dot"></div>AI-powered cold outreach — built for Indian founders</div>
-  <h1>Your sales team,<br><span class="accent">minus the sales team</span></h1>
-  <p class="hero-sub">OutreachAI finds leads, writes personalized emails, sends them, detects replies, and books meetings — fully on autopilot.</p>
-  <div class="hero-actions">
-    <button class="btn-primary" onclick="scroll2('lead-form')">Start free — no credit card</button>
-    <button class="btn-ghost" onclick="scroll2('how-it-works')">See how it works →</button>
-  </div>
-  <div class="composer">
-    <div class="composer-bar">
-      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      <span class="composer-label">outreachai — composing email</span>
-      <span class="composer-status"><span class="status-dot"></span>AI writing...</span>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="dot"></div>OutreachAI
     </div>
-    <div class="composer-body">
-      <div class="composer-field"><span class="field-label">to</span><span class="field-value accent" id="to-field">sarah@growthstudio.io</span></div>
-      <div class="composer-field"><span class="field-label">subject</span><span class="field-value" id="subj-field">Quick question about Growth Studio</span></div>
-      <div class="composer-content" id="email-body"></div>
-    </div>
-    <div class="composer-footer"><span id="char-count">0 tokens used</span><button class="send-btn">Send →</button></div>
-  </div>
-</section>
-
-<!-- STATS -->
-<div class="stats">
-  <div class="stat-item"><div class="stat-num"><span id="c1">0</span>%</div><div class="stat-label">Average reply rate</div></div>
-  <div class="stat-item"><div class="stat-num"><span id="c2">0</span>x</div><div class="stat-label">More meetings booked</div></div>
-  <div class="stat-item"><div class="stat-num"><span id="c3">0</span>h</div><div class="stat-label">Saved per week</div></div>
-  <div class="stat-item"><div class="stat-num"><span id="c4">0</span>s</div><div class="stat-label">Per email generated</div></div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section id="how-it-works">
-  <div class="section-eyebrow">// how it works</div>
-  <h2 class="section-title">From zero to booked meeting<br>in one workflow</h2>
-  <p class="section-sub">Set it up once. It runs every day without you touching anything.</p>
-  <div class="flow">
-    <div class="flow-step"><div class="step-icon">📋</div><div class="step-name">Add leads</div><div class="step-desc">Paste a Google Sheet or capture from your website form.</div></div>
-    <div class="flow-step"><div class="step-icon">✍️</div><div class="step-name">AI writes email</div><div class="step-desc">Groq AI researches each company and writes a unique email.</div></div>
-    <div class="flow-step"><div class="step-icon">📤</div><div class="step-name">Auto-send</div><div class="step-desc">Emails go from your real Gmail — not a bulk sender.</div></div>
-    <div class="flow-step"><div class="step-icon">🧠</div><div class="step-name">AI reads replies</div><div class="step-desc">Classifies every reply: interested, not interested, or question.</div></div>
-    <div class="flow-step"><div class="step-icon">📅</div><div class="step-name">Books meeting</div><div class="step-desc">Sends Calendly link to interested leads automatically.</div></div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section id="features" style="padding-top:0">
-  <div class="section-eyebrow">// features</div>
-  <h2 class="section-title">Everything cold outreach<br>should be</h2>
-  <p class="section-sub">No more copy-pasting, no more manual follow-ups, no more missed replies.</p>
-  <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">AI email generation</div><div class="feature-desc">Each email is written fresh using the lead's company name and website. Never looks like a template.</div></div>
-    <div class="feature-card"><div class="feature-icon">🔁</div><div class="feature-title">3-touch follow-up sequences</div><div class="feature-desc">Sends follow-ups at day 3, 7, and 14 automatically. Stops the moment someone replies.</div></div>
-    <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-title">Lead scoring</div><div class="feature-desc">AI scores every lead 0–100 based on company size, website quality, and fit.</div></div>
-    <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Live analytics</div><div class="feature-desc">Track emails sent, reply rates, interested leads, and meetings booked in real time.</div></div>
-    <div class="feature-card"><div class="feature-icon">🔗</div><div class="feature-title">CRM sync</div><div class="feature-desc">Interested leads flow directly into HubSpot or Notion. No copy-pasting between tools.</div></div>
-    <div class="feature-card"><div class="feature-icon">📥</div><div class="feature-title">Website lead capture</div><div class="feature-desc">Embed a form on your site. Leads go straight into the pipeline and get emailed within minutes.</div></div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section id="pricing" style="padding-top:0">
-  <div class="section-eyebrow">// pricing</div>
-  <h2 class="section-title">Launch pricing — 50% off<br>for early adopters</h2>
-  <p class="section-sub">Prices will go up once we hit 50 customers. Lock in the launch rate today.</p>
-  <div class="pricing-grid">
-
-    <div class="price-card">
-      <div class="launch-badge">🚀 Launch offer</div>
-      <div class="plan-name">STARTER</div>
-      <div class="plan-original">₹999/mo</div>
-      <div class="plan-price"><sup>₹</sup>499</div>
-      <div class="plan-cycle">per month · billed monthly</div>
-      <ul class="plan-features">
-        <li>50 leads per month</li>
-        <li>AI email generation</li>
-        <li>3-touch follow-ups</li>
-        <li>Gmail sending</li>
-        <li>Analytics dashboard</li>
-      </ul>
-      <button class="plan-btn" onclick="openPayment('Starter','499','starter')">Get started →</button>
-    </div>
-
-    <div class="price-card featured">
-      <div class="popular-badge">Most popular</div>
-      <div class="plan-name">PRO</div>
-      <div class="plan-original">₹2,499/mo</div>
-      <div class="plan-price"><sup>₹</sup>1,249</div>
-      <div class="plan-cycle">per month · billed monthly</div>
-      <ul class="plan-features">
-        <li>200 leads per month</li>
-        <li>Everything in Starter</li>
-        <li>Lead scoring (AI)</li>
-        <li>CRM integration</li>
-        <li>Reply classification</li>
-        <li>Meeting booking</li>
-      </ul>
-      <button class="plan-btn primary" onclick="openPayment('Pro','1,249','pro')">Start free trial →</button>
-    </div>
-
-    <div class="price-card">
-      <div class="plan-name">AGENCY</div>
-      <div class="plan-original">₹5,999/mo</div>
-      <div class="plan-price"><sup>₹</sup>2,999</div>
-      <div class="plan-cycle">per month · billed monthly</div>
-      <ul class="plan-features">
-        <li>Unlimited leads</li>
-        <li>Everything in Pro</li>
-        <li>Multi-user team access</li>
-        <li>Role-based permissions</li>
-        <li>Shared lead inbox</li>
-        <li>Priority WhatsApp support</li>
-      </ul>
-      <button class="plan-btn" onclick="openPayment('Agency','2,999','agency')">Contact us →</button>
-    </div>
-
-  </div>
-</section>
-
-<!-- LEAD CAPTURE FORM -->
-<div class="form-section" id="lead-form">
-  <div class="form-inner">
-    <div class="section-eyebrow" style="text-align:center">// early access</div>
-    <h2 class="section-title">Get 14 days free —<br>no credit card needed</h2>
-    <p class="section-sub" style="margin:0 auto">Join founders and agency owners already automating their outreach.</p>
-    <div class="form-card">
-      <div id="form-wrap">
-        <div class="form-row"><label>your name</label><input type="text" id="f-name" placeholder="Ankit Kumar"/></div>
-        <div class="form-row"><label>company name</label><input type="text" id="f-company" placeholder="Growth Studio"/></div>
-        <div class="form-row"><label>work email</label><input type="email" id="f-email" placeholder="you@company.com"/></div>
-        <div class="form-row"><label>company website</label><input type="url" id="f-website" placeholder="https://yourcompany.com"/></div>
-        <button class="form-submit" id="submit-btn" onclick="submitLead()">Start my free trial →</button>
-        <p class="form-note">No spam. No credit card. Unsubscribe anytime.</p>
-      </div>
-      <div class="success-msg" id="success-msg">
-        ✓ You're on the list, <span id="success-name"></span>!<br>
-        <span style="font-size:13px;color:var(--muted)">Ankit will reach out within 24 hours.</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CONTACT SECTION -->
-<div class="contact-section" id="contact">
-  <div class="contact-inner">
-    <div class="contact-info">
-      <div class="section-eyebrow">// contact</div>
-      <h2>Talk to the founder<br>directly</h2>
-      <p>No sales team, no chatbot. You speak directly with Ankit — the person who built this. Questions about setup, pricing, or custom plans? Just reach out.</p>
-      <div class="contact-item">
-        <div class="contact-icon">📧</div>
-        <div class="contact-detail">
-          <div class="contact-label">email</div>
-          <div class="contact-value"><a href="mailto:ankitkrth1911@gmail.com">ankitkrth1911@gmail.com</a></div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">📱</div>
-        <div class="contact-detail">
-          <div class="contact-label">whatsapp / call</div>
-          <div class="contact-value"><a href="https://wa.me/918929211095" target="_blank">+91 89292 11095</a></div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">⏰</div>
-        <div class="contact-detail">
-          <div class="contact-label">response time</div>
-          <div class="contact-value">Usually within 2–4 hours (IST)</div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="contact-icon">📍</div>
-        <div class="contact-detail">
-          <div class="contact-label">location</div>
-          <div class="contact-value">Greater Noida, Delhi NCR, India</div>
-        </div>
-      </div>
-    </div>
-    <div class="contact-form-card">
-      <h3>Send a message</h3>
-      <div id="contact-form-wrap">
-        <div class="form-row"><label>your name</label><input type="text" id="c-name" placeholder="Rahul Sharma"/></div>
-        <div class="form-row"><label>your email</label><input type="email" id="c-email" placeholder="rahul@company.com"/></div>
-        <div class="form-row">
-          <label>subject</label>
-          <select id="c-subject">
-            <option value="">Select a topic...</option>
-            <option value="Demo request">I want a demo</option>
-            <option value="Pricing question">Pricing question</option>
-            <option value="Custom plan">Custom / Agency plan</option>
-            <option value="Technical question">Technical question</option>
-            <option value="Other">Something else</option>
-          </select>
-        </div>
-        <div class="form-row"><label>message</label><textarea id="c-message" rows="4" placeholder="Tell me what you need..."></textarea></div>
-        <button class="form-submit" id="contact-submit-btn" onclick="submitContact()">Send message →</button>
-        <p class="form-note">I reply within a few hours on weekdays.</p>
-      </div>
-      <div class="success-msg" id="contact-success-msg">
-        ✓ Message sent!<br>
-        <span style="font-size:13px;color:var(--muted)">Ankit will reply to your email shortly.</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div class="logo">OutreachAI</div>
-      <p>AI-powered cold outreach automation for Indian founders and agencies. Built with n8n, Groq, and Gmail.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Product</h4>
+    <div class="nav-links">
       <a href="#how-it-works">How it works</a>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
     </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <a href="mailto:ankitkrth1911@gmail.com">Email us</a>
-      <a href="https://wa.me/918929211095" target="_blank">WhatsApp</a>
+    <button class="nav-cta" onclick="scroll2('lead-form')">Get early access</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <div class="eyebrow-dot"></div>AI-powered cold outreach — built for Indian founders
     </div>
-    <div class="footer-col">
-      <h4>Built with</h4>
-      <a href="#">n8n</a>
-      <a href="#">Groq AI</a>
-      <a href="#">Gmail API</a>
-      <a href="#">Google Sheets</a>
+    <h1>Your sales team,<br><span class="accent">minus the sales team</span></h1>
+    <p class="hero-sub">OutreachAI finds leads, writes personalized emails, sends them, detects replies, and books
+      meetings — fully on autopilot.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="scroll2('lead-form')">Start free — no credit card</button>
+      <button class="btn-ghost" onclick="scroll2('how-it-works')">See how it works →</button>
+    </div>
+    <div class="composer">
+      <div class="composer-bar">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <span class="composer-label">outreachai — composing email</span>
+        <span class="composer-status"><span class="status-dot"></span>AI writing...</span>
+      </div>
+      <div class="composer-body">
+        <div class="composer-field"><span class="field-label">to</span><span class="field-value accent"
+            id="to-field">sarah@growthstudio.io</span></div>
+        <div class="composer-field"><span class="field-label">subject</span><span class="field-value"
+            id="subj-field">Quick question about Growth Studio</span></div>
+        <div class="composer-content" id="email-body"></div>
+      </div>
+      <div class="composer-footer"><span id="char-count">0 tokens used</span><button class="send-btn">Send →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-num"><span id="c1">0</span>%</div>
+      <div class="stat-label">Average reply rate</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span id="c2">0</span>x</div>
+      <div class="stat-label">More meetings booked</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span id="c3">0</span>h</div>
+      <div class="stat-label">Saved per week</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num"><span id="c4">0</span>s</div>
+      <div class="stat-label">Per email generated</div>
     </div>
   </div>
-  <div class="footer-bottom">
-    <p>© 2025 OutreachAI · Made in India 🇮🇳</p>
-    <p>Contact: ankitkrth1911@gmail.com · +91 89292 11095</p>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <div class="section-eyebrow">// how it works</div>
+    <h2 class="section-title">From zero to booked meeting<br>in one workflow</h2>
+    <p class="section-sub">Set it up once. It runs every day without you touching anything.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-icon">📋</div>
+        <div class="step-name">Add leads</div>
+        <div class="step-desc">Paste a Google Sheet or capture from your website form.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon">✍️</div>
+        <div class="step-name">AI writes email</div>
+        <div class="step-desc">Groq AI researches each company and writes a unique email.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon">📤</div>
+        <div class="step-name">Auto-send</div>
+        <div class="step-desc">Emails go from your real Gmail — not a bulk sender.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon">🧠</div>
+        <div class="step-name">AI reads replies</div>
+        <div class="step-desc">Classifies every reply: interested, not interested, or question.</div>
+      </div>
+      <div class="flow-step">
+        <div class="step-icon">📅</div>
+        <div class="step-name">Books meeting</div>
+        <div class="step-desc">Sends Calendly link to interested leads automatically.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" style="padding-top:0">
+    <div class="section-eyebrow">// features</div>
+    <h2 class="section-title">Everything cold outreach<br>should be</h2>
+    <p class="section-sub">No more copy-pasting, no more manual follow-ups, no more missed replies.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">AI email generation</div>
+        <div class="feature-desc">Each email is written fresh using the lead's company name and website. Never looks
+          like a template.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔁</div>
+        <div class="feature-title">3-touch follow-up sequences</div>
+        <div class="feature-desc">Sends follow-ups at day 3, 7, and 14 automatically. Stops the moment someone replies.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Lead scoring</div>
+        <div class="feature-desc">AI scores every lead 0–100 based on company size, website quality, and fit.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Live analytics</div>
+        <div class="feature-desc">Track emails sent, reply rates, interested leads, and meetings booked in real time.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">CRM sync</div>
+        <div class="feature-desc">Interested leads flow directly into HubSpot or Notion. No copy-pasting between tools.
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📥</div>
+        <div class="feature-title">Website lead capture</div>
+        <div class="feature-desc">Embed a form on your site. Leads go straight into the pipeline and get emailed within
+          minutes.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing" style="padding-top:0">
+    <div class="section-eyebrow">// pricing</div>
+    <h2 class="section-title">Launch pricing — 50% off<br>for early adopters</h2>
+    <p class="section-sub">Prices will go up once we hit 50 customers. Lock in the launch rate today.</p>
+    <div class="pricing-grid">
+
+      <div class="price-card">
+        <div class="launch-badge">🚀 Launch offer</div>
+        <div class="plan-name">STARTER</div>
+        <div class="plan-original">₹999/mo</div>
+        <div class="plan-price"><sup>₹</sup>499</div>
+        <div class="plan-cycle">per month · billed monthly</div>
+        <ul class="plan-features">
+          <li>50 leads per month</li>
+          <li>AI email generation</li>
+          <li>3-touch follow-ups</li>
+          <li>Gmail sending</li>
+          <li>Analytics dashboard</li>
+        </ul>
+        <button class="plan-btn" onclick="openPayment('Starter','499','starter')">Get started →</button>
+      </div>
+
+      <div class="price-card featured">
+        <div class="popular-badge">Most popular</div>
+        <div class="plan-name">PRO</div>
+        <div class="plan-original">₹2,499/mo</div>
+        <div class="plan-price"><sup>₹</sup>1,249</div>
+        <div class="plan-cycle">per month · billed monthly</div>
+        <ul class="plan-features">
+          <li>200 leads per month</li>
+          <li>Everything in Starter</li>
+          <li>Lead scoring (AI)</li>
+          <li>CRM integration</li>
+          <li>Reply classification</li>
+          <li>Meeting booking</li>
+        </ul>
+        <button class="plan-btn primary" onclick="openPayment('Pro','1,249','pro')">Start free trial →</button>
+      </div>
+
+      <div class="price-card">
+        <div class="plan-name">AGENCY</div>
+        <div class="plan-original">₹5,999/mo</div>
+        <div class="plan-price"><sup>₹</sup>2,999</div>
+        <div class="plan-cycle">per month · billed monthly</div>
+        <ul class="plan-features">
+          <li>Unlimited leads</li>
+          <li>Everything in Pro</li>
+          <li>Multi-user team access</li>
+          <li>Role-based permissions</li>
+          <li>Shared lead inbox</li>
+          <li>Priority WhatsApp support</li>
+        </ul>
+        <button class="plan-btn" onclick="openPayment('Agency','2,999','agency')">Contact us →</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- LEAD CAPTURE FORM -->
+  <div class="form-section" id="lead-form">
+    <div class="form-inner">
+      <div class="section-eyebrow" style="text-align:center">// early access</div>
+      <h2 class="section-title">Get 14 days free —<br>no credit card needed</h2>
+      <p class="section-sub" style="margin:0 auto">Join founders and agency owners already automating their outreach.
+      </p>
+      <div class="form-card">
+        <div id="form-wrap">
+          <div class="form-row"><label>your name</label><input type="text" id="f-name" placeholder="Ankit Kumar" />
+          </div>
+          <div class="form-row"><label>company name</label><input type="text" id="f-company"
+              placeholder="Growth Studio" /></div>
+          <div class="form-row"><label>work email</label><input type="email" id="f-email"
+              placeholder="you@company.com" /></div>
+          <div class="form-row"><label>company website</label><input type="url" id="f-website"
+              placeholder="https://yourcompany.com" /></div>
+          <button class="form-submit" id="submit-btn" onclick="submitLead()">Start my free trial →</button>
+          <p class="form-note">No spam. No credit card. Unsubscribe anytime.</p>
+        </div>
+        <div class="success-msg" id="success-msg">
+          ✓ You're on the list, <span id="success-name"></span>!<br>
+          <span style="font-size:13px;color:var(--muted)">Ankit will reach out within 24 hours.</span>
+        </div>
+      </div>
+    </div>
   </div>
-</footer>
 
-<!-- WHATSAPP FLOAT BUTTON -->
-<a class="wa-float" href="https://wa.me/918929211095?text=Hi%20Ankit%2C%20I%20want%20to%20know%20more%20about%20OutreachAI" target="_blank" title="Chat on WhatsApp">💬</a>
-
-<!-- PAYMENT MODAL -->
-<div class="rz-overlay" id="rz-overlay" onclick="closePayment(event)">
-  <div class="rz-modal">
-    <div class="rz-plan-badge" id="rz-plan-label">PRO PLAN</div>
-    <h3>Complete your subscription</h3>
-    <p id="rz-desc">You're getting the Pro plan at launch pricing. Cancel anytime.</p>
-    <div class="rz-amount"><sup>₹</sup><span id="rz-amount-val">1,249</span></div>
-    <div class="rz-note">per month · launch offer · 50% off forever</div>
-    <button class="rz-btn" id="rz-pay-btn" onclick="launchRazorpay()">Pay with Razorpay →</button>
-    <button class="rz-cancel" onclick="closePaymentDirect()">Cancel</button>
+  <!-- CONTACT SECTION -->
+  <div class="contact-section" id="contact">
+    <div class="contact-inner">
+      <div class="contact-info">
+        <div class="section-eyebrow">// contact</div>
+        <h2>Talk to the founder<br>directly</h2>
+        <p>No sales team, no chatbot. You speak directly with Ankit — the person who built this. Questions about setup,
+          pricing, or custom plans? Just reach out.</p>
+        <div class="contact-item">
+          <div class="contact-icon">📧</div>
+          <div class="contact-detail">
+            <div class="contact-label">email</div>
+            <div class="contact-value"><a href="mailto:ankitkrth1911@gmail.com">ankitkrth1911@gmail.com</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📱</div>
+          <div class="contact-detail">
+            <div class="contact-label">whatsapp / call</div>
+            <div class="contact-value"><a href="https://wa.me/918929211095" target="_blank"></a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">⏰</div>
+          <div class="contact-detail">
+            <div class="contact-label">response time</div>
+            <div class="contact-value">Usually within 2–4 hours (IST)</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div class="contact-detail">
+            <div class="contact-label">location</div>
+            <div class="contact-value">Greater Noida, Delhi NCR, India</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-card">
+        <h3>Send a message</h3>
+        <div id="contact-form-wrap">
+          <div class="form-row"><label>your name</label><input type="text" id="c-name" placeholder="Rahul Sharma" />
+          </div>
+          <div class="form-row"><label>your email</label><input type="email" id="c-email"
+              placeholder="rahul@company.com" /></div>
+          <div class="form-row">
+            <label>subject</label>
+            <select id="c-subject">
+              <option value="">Select a topic...</option>
+              <option value="Demo request">I want a demo</option>
+              <option value="Pricing question">Pricing question</option>
+              <option value="Custom plan">Custom / Agency plan</option>
+              <option value="Technical question">Technical question</option>
+              <option value="Other">Something else</option>
+            </select>
+          </div>
+          <div class="form-row"><label>message</label><textarea id="c-message" rows="4"
+              placeholder="Tell me what you need..."></textarea></div>
+          <button class="form-submit" id="contact-submit-btn" onclick="submitContact()">Send message →</button>
+          <p class="form-note">I reply within a few hours on weekdays.</p>
+        </div>
+        <div class="success-msg" id="contact-success-msg">
+          ✓ Message sent!<br>
+          <span style="font-size:13px;color:var(--muted)">Ankit will reply to your email shortly.</span>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">OutreachAI</div>
+        <p>AI-powered cold outreach automation for Indian founders and agencies. Built with n8n, Groq, and Gmail.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:ankitkrth1911@gmail.com">Email us</a>
+        <a href="https://wa.me/918929211095" target="_blank">WhatsApp</a>
+      </div>
+      <div class="footer-col">
+        <h4>Built with</h4>
+        <a href="#">n8n</a>
+        <a href="#">Groq AI</a>
+        <a href="#">Gmail API</a>
+        <a href="#">Google Sheets</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 OutreachAI · Made in India 🇮🇳</p>
+      <p>Contact: ankitkrth1911@gmail.com · +91 89292 11095</p>
+    </div>
+  </footer>
 
-<script>
-// ─── CONFIG ───────────────────────────────────────────────
-// Replace with your real n8n Production webhook URL after activating workflow
-const WEBHOOK_URL = 'https://ankit1911.app.n8n.cloud/webhook/61ca2d57-414d-420e-b749-bf21ad616fef';
+  <!-- WHATSAPP FLOAT BUTTON -->
+  <a class="wa-float"
+    href="https://wa.me/918929211095?text=Hi%20Ankit%2C%20I%20want%20to%20know%20more%20about%20OutreachAI"
+    target="_blank" title="Chat on WhatsApp">💬</a>
 
-// Replace with your real Razorpay Key ID from razorpay.com dashboard
-const RAZORPAY_KEY = 'rzp_test_REPLACE_WITH_YOUR_KEY';
+  <!-- PAYMENT MODAL -->
+  <div class="rz-overlay" id="rz-overlay" onclick="closePayment(event)">
+    <div class="rz-modal">
+      <div class="rz-plan-badge" id="rz-plan-label">PRO PLAN</div>
+      <h3>Complete your subscription</h3>
+      <p id="rz-desc">You're getting the Pro plan at launch pricing. Cancel anytime.</p>
+      <div class="rz-amount"><sup>₹</sup><span id="rz-amount-val">1,249</span></div>
+      <div class="rz-note">per month · launch offer · 50% off forever</div>
+      <button class="rz-btn" id="rz-pay-btn" onclick="launchRazorpay()">Pay with Razorpay →</button>
+      <button class="rz-cancel" onclick="closePaymentDirect()">Cancel</button>
+    </div>
+  </div>
 
-// ─── HELPERS ──────────────────────────────────────────────
-function scroll2(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}) }
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
-function showToast(msg, duration=3000){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), duration);
-}
+  <script>
+    // ─── CONFIG ───────────────────────────────────────────────
+    // Replace with your real n8n Production webhook URL after activating workflow
+    const WEBHOOK_URL = 'https://ankit1911.app.n8n.cloud/webhook/lead-capture';
 
-// ─── ANIMATED EMAIL COMPOSER ──────────────────────────────
-const emails=[
-  {to:'sarah@growthstudio.io',subject:'Quick question about Growth Studio',body:`Hi Sarah,\n\nI noticed Growth Studio helps D2C brands scale their paid ads — impressive results on your case studies.\n\nWe built a tool that automates cold outreach for agencies like yours. Most of our users book 3–5 extra calls a week without lifting a finger.\n\nWorth a 15-min chat this week?`},
-  {to:'rahul@techscalehq.com',subject:'Saw your SaaS funding news — congrats',body:`Hey Rahul,\n\nCongrats on TechScale's Series A — saw the news on LinkedIn.\n\nAs you scale your sales motion, outreach tends to break down fast. We automate the entire cold email pipeline with AI so your team focuses only on warm calls.\n\nOpen to a quick 15-minute demo this week?`}
-];
-let curEmail=0,charIdx=0,typeInt;
-function typeEmail(){
-  const e=emails[curEmail];
-  const el=document.getElementById('email-body');
-  document.getElementById('to-field').textContent=e.to;
-  document.getElementById('subj-field').textContent=e.subject;
-  el.innerHTML=''; charIdx=0;
-  typeInt=setInterval(()=>{
-    if(charIdx<e.body.length){
-      charIdx++;
-      el.innerHTML=e.body.slice(0,charIdx).replace(/\n/g,'<br>')+'<span class="cursor"></span>';
-      document.getElementById('char-count').textContent=charIdx+' tokens used';
-    }else{
-      clearInterval(typeInt);
-      setTimeout(()=>{curEmail=(curEmail+1)%emails.length;typeEmail();},3000);
+    // Replace with your real Razorpay Key ID from razorpay.com dashboard
+    const RAZORPAY_KEY = '';
+
+    // ─── HELPERS ──────────────────────────────────────────────
+    function scroll2(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }) }
+
+    function showToast(msg, duration = 3000) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration);
     }
-  },28);
-}
-typeEmail();
 
-// ─── COUNTER ANIMATION ────────────────────────────────────
-function animCount(id,target,dur){
-  const el=document.getElementById(id);
-  const start=performance.now();
-  function upd(now){
-    const p=Math.min((now-start)/dur,1);
-    const e=1-Math.pow(1-p,3);
-    el.textContent=Math.round(e*target);
-    if(p<1)requestAnimationFrame(upd);
-    else el.textContent=target;
-  }
-  requestAnimationFrame(upd);
-}
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      animCount('c1',34,1200);animCount('c2',3,1000);
-      animCount('c3',12,1100);animCount('c4',4,800);
-      obs.disconnect();
+    // ─── ANIMATED EMAIL COMPOSER ──────────────────────────────
+    const emails = [
+      { to: 'sarah@growthstudio.io', subject: 'Quick question about Growth Studio', body: `Hi Sarah,\n\nI noticed Growth Studio helps D2C brands scale their paid ads — impressive results on your case studies.\n\nWe built a tool that automates cold outreach for agencies like yours. Most of our users book 3–5 extra calls a week without lifting a finger.\n\nWorth a 15-min chat this week?` },
+      { to: 'rahul@techscalehq.com', subject: 'Saw your SaaS funding news — congrats', body: `Hey Rahul,\n\nCongrats on TechScale's Series A — saw the news on LinkedIn.\n\nAs you scale your sales motion, outreach tends to break down fast. We automate the entire cold email pipeline with AI so your team focuses only on warm calls.\n\nOpen to a quick 15-minute demo this week?` }
+    ];
+    let curEmail = 0, charIdx = 0, typeInt;
+    function typeEmail() {
+      const e = emails[curEmail];
+      const el = document.getElementById('email-body');
+      document.getElementById('to-field').textContent = e.to;
+      document.getElementById('subj-field').textContent = e.subject;
+      el.innerHTML = ''; charIdx = 0;
+      typeInt = setInterval(() => {
+        if (charIdx < e.body.length) {
+          charIdx++;
+          el.innerHTML = e.body.slice(0, charIdx).replace(/\n/g, '<br>') + '<span class="cursor"></span>';
+          document.getElementById('char-count').textContent = charIdx + ' tokens used';
+        } else {
+          clearInterval(typeInt);
+          setTimeout(() => { curEmail = (curEmail + 1) % emails.length; typeEmail(); }, 3000);
+        }
+      }, 28);
     }
-  });
-},{threshold:0.5});
-obs.observe(document.querySelector('.stats'));
+    typeEmail();
 
-// ─── LEAD FORM ────────────────────────────────────────────
-async function submitLead(){
-  const name=document.getElementById('f-name').value.trim();
-  const company=document.getElementById('f-company').value.trim();
-  const email=document.getElementById('f-email').value.trim();
-  const website=document.getElementById('f-website').value.trim();
-  if(!name||!email){showToast('⚠️ Please enter your name and email.');return;}
-  const btn=document.getElementById('submit-btn');
-  btn.textContent='Sending...';btn.disabled=true;
-  try{
-    await fetch(WEBHOOK_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,company,email,website,source:'landing-page',date:new Date().toISOString()})
-    });
-  }catch(e){}
-  document.getElementById('form-wrap').style.display='none';
-  document.getElementById('success-name').textContent=name.split(' ')[0];
-  document.getElementById('success-msg').style.display='block';
-  showToast('✓ You\'re on the list!');
-}
-
-// ─── CONTACT FORM ─────────────────────────────────────────
-async function submitContact(){
-  const name=document.getElementById('c-name').value.trim();
-  const email=document.getElementById('c-email').value.trim();
-  const subject=document.getElementById('c-subject').value;
-  const message=document.getElementById('c-message').value.trim();
-  if(!name||!email||!message){showToast('⚠️ Please fill all fields.');return;}
-  const btn=document.getElementById('contact-submit-btn');
-  btn.textContent='Sending...';btn.disabled=true;
-  try{
-    await fetch(WEBHOOK_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,email,subject,message,source:'contact-form',date:new Date().toISOString()})
-    });
-  }catch(e){}
-  document.getElementById('contact-form-wrap').style.display='none';
-  document.getElementById('contact-success-msg').style.display='block';
-  showToast('✓ Message sent! Ankit will reply soon.');
-}
-
-// ─── PAYMENT MODAL ────────────────────────────────────────
-let currentPlan={name:'',amount:'',key:''};
-
-function openPayment(planName, amount, planKey){
-  currentPlan={name:planName, amount, key:planKey};
-  document.getElementById('rz-plan-label').textContent=planName.toUpperCase()+' PLAN';
-  document.getElementById('rz-amount-val').textContent=amount;
-  document.getElementById('rz-desc').textContent=
-    `You're getting the ${planName} plan at launch pricing. Cancel anytime.`;
-  document.getElementById('rz-overlay').classList.add('open');
-}
-
-function closePayment(e){
-  if(e.target===document.getElementById('rz-overlay')) closePaymentDirect();
-}
-function closePaymentDirect(){
-  document.getElementById('rz-overlay').classList.remove('open');
-}
-
-function launchRazorpay(){
-  // Amount in paise (₹499 = 49900, ₹1249 = 124900, ₹2999 = 299900)
-  const amountMap={starter:49900, pro:124900, agency:299900};
-  const paise = amountMap[currentPlan.key] || 49900;
-
-  const options={
-    key: RAZORPAY_KEY,
-    amount: paise,
-    currency: 'INR',
-    name: 'OutreachAI',
-    description: currentPlan.name+' Plan — Monthly Subscription',
-    image: '',
-    prefill:{
-      name:'',
-      email:'',
-      contact:'8929211095'
-    },
-    notes:{
-      plan: currentPlan.name,
-      source: 'landing-page'
-    },
-    theme:{color:'#6366F1'},
-    handler: function(response){
-      closePaymentDirect();
-      showToast('✓ Payment successful! Ankit will set up your account within 2 hours.',5000);
-      // Notify via webhook
-      try{
-        fetch(WEBHOOK_URL,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            source:'payment',
-            plan:currentPlan.name,
-            payment_id:response.razorpay_payment_id,
-            date:new Date().toISOString()
-          })
-        });
-      }catch(e){}
-      // Scroll to success
-      setTimeout(()=>scroll2('contact'),1000);
-    },
-    modal:{
-      ondismiss:function(){
-        showToast('Payment cancelled. You can try again anytime.');
+    // ─── COUNTER ANIMATION ────────────────────────────────────
+    function animCount(id, target, dur) {
+      const el = document.getElementById(id);
+      const start = performance.now();
+      function upd(now) {
+        const p = Math.min((now - start) / dur, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(e * target);
+        if (p < 1) requestAnimationFrame(upd);
+        else el.textContent = target;
       }
+      requestAnimationFrame(upd);
     }
-  };
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animCount('c1', 34, 1200); animCount('c2', 3, 1000);
+          animCount('c3', 12, 1100); animCount('c4', 4, 800);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    obs.observe(document.querySelector('.stats'));
 
-  // Check if Razorpay is loaded
-  if(typeof Razorpay === 'undefined'){
-    closePaymentDirect();
-    showToast('⚠️ Add your Razorpay key to activate payments.');
-    return;
-  }
+    // ─── LEAD FORM ────────────────────────────────────────────
+    async function submitLead() {
+      const name = document.getElementById('f-name').value.trim();
+      const company = document.getElementById('f-company').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const website = document.getElementById('f-website').value.trim();
+      if (!name || !email) { showToast('⚠️ Please enter your name and email.'); return; }
+      const btn = document.getElementById('submit-btn');
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, company, email, website, source: 'landing-page', date: new Date().toISOString() })
+        });
+      } catch (e) { }
+      document.getElementById('form-wrap').style.display = 'none';
+      document.getElementById('success-name').textContent = name.split(' ')[0];
+      document.getElementById('success-msg').style.display = 'block';
+      showToast('✓ You\'re on the list!');
+    }
 
-  if(RAZORPAY_KEY === 'rzp_test_REPLACE_WITH_YOUR_KEY'){
-    closePaymentDirect();
-    // Redirect to contact for now
-    showToast('💬 Payments coming soon! WhatsApp Ankit to subscribe now.',4000);
-    setTimeout(()=>window.open('https://wa.me/918929211095?text=Hi%20Ankit%2C%20I%20want%20to%20subscribe%20to%20the%20'+currentPlan.name+'%20plan','_blank'),1500);
-    return;
-  }
+    // ─── CONTACT FORM ─────────────────────────────────────────
+    async function submitContact() {
+      const name = document.getElementById('c-name').value.trim();
+      const email = document.getElementById('c-email').value.trim();
+      const subject = document.getElementById('c-subject').value;
+      const message = document.getElementById('c-message').value.trim();
+      if (!name || !email || !message) { showToast('⚠️ Please fill all fields.'); return; }
+      const btn = document.getElementById('contact-submit-btn');
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, subject, message, source: 'contact-form', date: new Date().toISOString() })
+        });
+      } catch (e) { }
+      document.getElementById('contact-form-wrap').style.display = 'none';
+      document.getElementById('contact-success-msg').style.display = 'block';
+      showToast('✓ Message sent! Ankit will reply soon.');
+    }
 
-  const rzp = new Razorpay(options);
-  rzp.open();
-  closePaymentDirect();
-}
-</script>
+    // ─── PAYMENT MODAL ────────────────────────────────────────
+    let currentPlan = { name: '', amount: '', key: '' };
+
+    function openPayment(planName, amount, planKey) {
+      currentPlan = { name: planName, amount, key: planKey };
+      document.getElementById('rz-plan-label').textContent = planName.toUpperCase() + ' PLAN';
+      document.getElementById('rz-amount-val').textContent = amount;
+      document.getElementById('rz-desc').textContent =
+        `You're getting the ${planName} plan at launch pricing. Cancel anytime.`;
+      document.getElementById('rz-overlay').classList.add('open');
+    }
+
+    function closePayment(e) {
+      if (e.target === document.getElementById('rz-overlay')) closePaymentDirect();
+    }
+    function closePaymentDirect() {
+      document.getElementById('rz-overlay').classList.remove('open');
+    }
+
+    function launchRazorpay() {
+      // Amount in paise (₹499 = 49900, ₹1249 = 124900, ₹2999 = 299900)
+      const amountMap = { starter: 49900, pro: 124900, agency: 299900 };
+      const paise = amountMap[currentPlan.key] || 49900;
+
+      const options = {
+        key: RAZORPAY_KEY,
+        amount: paise,
+        currency: 'INR',
+        name: 'OutreachAI',
+        description: currentPlan.name + ' Plan — Monthly Subscription',
+        image: '',
+        prefill: {
+          name: '',
+          email: '',
+          contact: '8929211095'
+        },
+        notes: {
+          plan: currentPlan.name,
+          source: 'landing-page'
+        },
+        theme: { color: '#6366F1' },
+        handler: function (response) {
+          closePaymentDirect();
+          showToast('✓ Payment successful! Ankit will set up your account within 2 hours.', 5000);
+          // Notify via webhook
+          try {
+            fetch(WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                source: 'payment',
+                plan: currentPlan.name,
+                payment_id: response.razorpay_payment_id,
+                date: new Date().toISOString()
+              })
+            });
+          } catch (e) { }
+          // Scroll to success
+          setTimeout(() => scroll2('contact'), 1000);
+        },
+        modal: {
+          ondismiss: function () {
+            showToast('Payment cancelled. You can try again anytime.');
+          }
+        }
+      };
+
+      // Check if Razorpay is loaded
+      if (typeof Razorpay === 'undefined') {
+        closePaymentDirect();
+        showToast('⚠️ Add your Razorpay key to activate payments.');
+        return;
+      }
+
+      if (RAZORPAY_KEY === 'rzp_test_REPLACE_WITH_YOUR_KEY') {
+        closePaymentDirect();
+        // Redirect to contact for now
+        showToast('💬 Payments coming soon! WhatsApp Ankit to subscribe now.', 4000);
+        setTimeout(() => window.open('https://wa.me/918929211095?text=Hi%20Ankit%2C%20I%20want%20to%20subscribe%20to%20the%20' + currentPlan.name + '%20plan', '_blank'), 1500);
+        return;
+      }
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+      closePaymentDirect();
+    }
+  </script>
 </body>
+
 </html>
